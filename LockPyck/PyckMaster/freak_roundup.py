@@ -7,8 +7,8 @@ import shutil
 import operator
 import time
 
-lp = '/home/d0cc0m/Python/LockPyck/'  #replace *** with path to LockPyck
-pl = '/home/d0cc0m/Documents/Dictionaries and Cracklist/dumps_modified/plain_pass/strings/vip_pass'  #replace *** with path to password list
+lp = '***'  #replace *** with path to LockPyck
+pl = '***'  #replace *** with path to password list
 
 # This function takes a sequence list and a character. If the sequence is empty,
 # the character type representation {D igit, L etter, S pecial, W hitespace} is
