@@ -4,8 +4,7 @@ import os
 import time
 import string
 import freak_roundup
-
-pl = '/home/d0cc0m/Documents/Dictionaries and Cracklist/dumps_modified/plain_pass/strings/vip_pass'  #replace *** with path to password list
+import csv
 
 # This function takes a sequence list and a character. If the sequence is empty,
 # the character type representation {D igit, L etter, S pecial, W hitespace} is
@@ -57,7 +56,7 @@ def updateSeq (sequ, char):
 
 # This is the driver for the freak_roundup. It creates the sequences from the passwords with
 # the help of updateSeq. It then begins calling the functions to update the various freak sheets.
-def main():
+def main(pl):
     print '[+] Starting the freak roundup...\n'
     start = time.clock()
     fsheets = os.path.join('..', '..', 'FreakSheets')
