@@ -5,63 +5,11 @@ import csv
 import os
 import shutil
 import operator
-import time
-
-lp = '***'  #replace *** with path to LockPyck
-pl = '***'  #replace *** with path to password list
-
-# This function takes a sequence list and a character. If the sequence is empty,
-# the character type representation {D igit, L etter, S pecial, W hitespace} is
-# added to the list with a count of 1. Otherwise, the previously added char type
-# rep is checked to see if it matches the current type. If it does it's count is
-# incremented, else it's type rep is added to the list with a count of 1.
-def updateSeq (sequ, char):
-    if char in string.letters:
-        if len(sequ) > 0:
-            if sequ[len(sequ) - 2] == 'L':
-                sequ[len(sequ) - 1] += 1
-            else:
-                sequ.append('L')
-                sequ.append(1)
-        else:
-            sequ.append('L')
-            sequ.append(1)
-    elif char in string.digits:
-        if len(sequ) > 0:
-            if sequ[len(sequ) - 2] == 'D':
-                sequ[len(sequ) - 1] += 1
-            else:
-                sequ.append('D')
-                sequ.append(1)
-        else:
-            sequ.append('D')
-            sequ.append(1)
-    elif char in string.punctuation:
-        if len(sequ) > 0:
-            if sequ[len(sequ) - 2] == 'S':
-                sequ[len(sequ) - 1] += 1
-            else:
-                sequ.append('S')
-                sequ.append(1)
-        else:
-            sequ.append('S')
-            sequ.append(1)
-    elif char in string.whitespace:
-        if len(sequ) > 0:
-            if sequ[len(sequ) - 2] == 'W':
-                sequ[len(sequ) - 1] += 1
-            else:
-                sequ.append('W')
-                sequ.append(1)
-        else:
-            sequ.append('W')
-            sequ.append(1)
-    return
 
 # This function takes a sequence string argument. If the SeqFreak file contains
 # the sequence it's count is incremented by 1, else its added with a count of 1.
 def updateSeqFreak (sequ, count):
-    seqfreakin = lp + 'FreakSheets/Seq.freak'
+    seqfreakin = os.path.join('..', '..', 'FreakSheets', 'Seq.freak')
     seqfreakout = seqfreakin + '~'
     found = False
     writer = open(seqfreakout, 'a+')
@@ -95,7 +43,7 @@ def updateTerminalFreaks (sequ, pswd):
         j = 0 
         while i < len(sequ):
             ctype = sequ[i]
-            freakName = lp + 'FreakSheets/' + ctype + '/' + ctype + str(sequ[i + 1]) + '.freak'
+            freakName = os.path.join('..', '..', 'FreakSheets', ctype, ctype + str(sequ[i + 1]) + '.freak')
             sq = ''
             h = j		
             while h < j + sequ[i + 1]:
@@ -132,8 +80,9 @@ def createFreakCount (freakfile):
     with open(freakfile, 'r') as freakin:
         reader = csv.reader(freakin)
         for row in reader:
-            if len(row) == 2:
-                count += int(row[1].strip('\n'))
+            if row[0] != 'count':
+                if len(row) == 2:
+                    count += int(row[1].strip('\n'))
     freakin.close()
     addFreakinCount(freakfile, count)
     return
@@ -142,45 +91,56 @@ def createFreakCount (freakfile):
 # the count to the end of the file.
 def addFreakinCount (freakfile, count):
     print '[+] Adding the freakin count to ' + freakfile + '\n'
-    freakyWriter = open(freakfile, 'a+')
-    freakyWriter.write('count,' + str(count) + '\n')
-    freakyWriter.close()
+    found = False
+    with open(freakfile, 'r') as freakin, open(freakfile + '~', 'a+') as freakout:
+        reader = csv.reader(freakin)
+        i = 0
+        for row in reader:
+            if row[0] == 'count':
+                freakout.write('count,' + str(count) + '\n')
+                found = True
+            else:
+                freakout.write(row[0] + ',' + row[1] + '\n')
+    freakin.close()
+    freakout.close()
+    shutil.move(freakfile + '~', freakfile)
+    if not found:
+        freakyWriter = open(freakfile, 'a+')
+        freakyWriter.write('count,' + str(count) + '\n')
+        freakyWriter.close()
     return
 
 # This function takes the path to a freakfile as an argument. It then sorts the freakfile
 # in descending order of frequencies.
 def sortaFreaky (freakfile):
     print '[+] Sorting the freaks in ' + freakfile + '\n'
+    cnt = 0
+    at_least_three = False
+    with open(freakfile, 'r') as freakin:
+        for row in freakin:
+            cnt += 1
+            if cnt == 3:
+                at_least_three = True
+                break
+    freakin.close()
     with open(freakfile, 'r') as freakin, open(freakfile + '~', 'a+') as freakout:
         reader = csv.reader(freakin)
-        sortedFreak = sorted(reader, key=lambda ro: int(ro[1]), reverse=True)
+        if at_least_three:
+            sortedFreak = sorted(reader, key=lambda ro: int(ro[1]), reverse=True)
+        else:
+            i = 0
+            t0 = []
+            t1 = []
+            for r in reader:
+                if i == 0:
+                    t0 = r
+                else:
+                    t1 = r
+                i += 1
+            sortedFreak = [t1, t0]
         for row in sortedFreak:
             freakout.write(row[0] + ',' + row[1] + '\n')
     freakin.close()
     freakout.close()
     shutil.move(freakfile + '~', freakfile)
-
-print '[+] Starting the freak roundup...\n'
-start = time.clock()
-count = 0
-with open(pl) as passlist:
-    for pswd in passlist:
-        seq = []
-        pswd = pswd.strip('\n')
-        for ch in pswd:
-            updateSeq(seq, ch)
-        updateTerminalFreaks(seq, pswd)
-        seqString = ''
-        for c in seq:
-            seqString += str(c)
-        count = updateSeqFreak(seqString, count)
-#createFreakCount(lp + 'FreakSheets/Seq.freak')
-addFreakinCount (lp + 'FreakSheets/Seq.freak', count)
-types = ['D','L','S','W']
-for t in types:
-    for freak in os.listdir(lp + 'FreakSheets/' + t + '/'):
-        if freak.endswith('.freak'):
-            createFreakCount(lp + 'FreakSheets/' + t + '/' + freak)
-            sortaFreaky(lp + 'FreakSheets/' + t + '/' + freak)
-sortaFreaky(lp + 'FreakSheets/Seq.freak')
-print '[+] Freak roundup finished in ' + str(time.clock() - start) + 'seconds\n'
+    return
