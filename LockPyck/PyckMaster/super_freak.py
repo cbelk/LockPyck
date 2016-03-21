@@ -61,36 +61,43 @@ def main(pl):
     start = time.clock()
     fsheets = os.path.join('..', '..', 'FreakSheets')
     sqfreak = os.path.join(fsheets, 'Seq.freak')
-    if os.path.isfile(sqfreak) and os.stat(sqfreak).st_size > 0:
-        with open(sqfreak, 'r') as sqf:
-            reader = csv.reader(sqf)
-            for row in reader:
-                if row[0] == 'count':
-                    count = int(row[1].strip('\n'))
-                    break
-        sqf.close()
-    else:
-        count = 0
+    seq_dict = {'freakycount': 0}
+    terminal_dict = {}
     with open(pl) as passlist:
         for pswd in passlist:
             seq = []
             pswd = pswd.strip('\n')
             for ch in pswd:
                 updateSeq(seq, ch)
-            freak_roundup.updateTerminalFreaks(seq, pswd)
+            terminal_dict = freak_roundup.updateTerminals(seq, pswd, terminal_dict)
             seqString = ''
             for c in seq:
                 seqString += str(c)
-            count = freak_roundup.updateSeqFreak(seqString, count)
-    freak_roundup.addFreakinCount(sqfreak, count)
-    types = ['D','L','S','W']
+            if seqString in seq_dict:
+                seq_dict[seqString] += 1
+            else:
+                seq_dict[seqString] = 1
+            seq_dict['freakycount'] += 1
+    passlist.close()
+    freak_roundup.freakyUpdate(sqfreak, seq_dict)
+    freak_roundup.updateTerminalFreaks(fsheets, terminal_dict)
+#            count = freak_roundup.updateSeqFreak(seqString, count)
+#    freak_roundup.addFreakinCount(sqfreak, count)
+    types = ['D','L','W']
     for t in types:
         for freak in os.listdir(os.path.join(fsheets, t)):
             if freak.endswith('.freak'):
-                freak_roundup.createFreakCount(os.path.join(fsheets, t, freak))
+#                freak_roundup.createFreakCount(os.path.join(fsheets, t, freak))
                 freak_roundup.sortaFreaky(os.path.join(fsheets, t, freak))
+    for freak in os.listdir(os.path.join(fsheets, 'S')):
+        if freak.endswith('.freak'):
+            freak_roundup.sortaSpecialFreaky(os.path.join(fsheets, 'S', freak))
     freak_roundup.sortaFreaky(sqfreak)
-    print '[+] Freak roundup finished in ' + str(time.clock() - start) + 'seconds\n'
+    runtime = time.clock() - start
+    if runtime > 60:
+        print '[+] Freak roundup finished in ' + str(runtime / 60) + ' minute(s)'
+    else:
+        print '[+] Freak roundup finished in ' + str(runtime) + ' seconds\n'
     return
 
 if __name__ == "__main__":
