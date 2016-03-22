@@ -81,18 +81,14 @@ def main(pl):
     passlist.close()
     freak_roundup.freakyUpdate(sqfreak, seq_dict)
     freak_roundup.updateTerminalFreaks(fsheets, terminal_dict)
-#            count = freak_roundup.updateSeqFreak(seqString, count)
-#    freak_roundup.addFreakinCount(sqfreak, count)
     types = ['D','L','W']
     for t in types:
         for freak in os.listdir(os.path.join(fsheets, t)):
             if freak.endswith('.freak'):
-#                freak_roundup.createFreakCount(os.path.join(fsheets, t, freak))
                 freak_roundup.sortaFreaky(os.path.join(fsheets, t, freak))
     for freak in os.listdir(os.path.join(fsheets, 'S')):
         if freak.endswith('.freak'):
-            freak_roundup.sortaSpecialFreaky(os.path.join(fsheets, 'S', freak))
-    freak_roundup.sortaFreaky(sqfreak)
+            freak_roundup.sortaFreaky(os.path.join(fsheets, 'S', freak))
     runtime = time.clock() - start
     if runtime > 60:
         print '[+] Freak roundup finished in ' + str(runtime / 60) + ' minute(s)'
