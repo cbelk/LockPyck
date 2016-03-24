@@ -1,5 +1,25 @@
 #! /usr/bin/env python
 
+#########################################################################################
+#											#
+#    LockPyck -- A Password Cracker Powered By Probabilistic Context free grammars	#
+#    Copyright (C) 2016  Christian Belk -- cbelk88@gmail.com				#
+#											#
+#    This program is free software: you can redistribute it and/or modify		#
+#    it under the terms of the GNU General Public License as published by		#
+#    the Free Software Foundation, either version 3 of the License, or			#
+#    (at your option) any later version.						#
+#											#
+#    This program is distributed in the hope that it will be useful,			#
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of			#
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the			#
+#    GNU General Public License for more details.					#
+#											#
+#    You should have received a copy of the GNU General Public License			#
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.   		#
+#											#
+#########################################################################################
+
 import os
 import time
 import string
@@ -82,13 +102,13 @@ def main(pl):
     freak_roundup.freakyUpdate(sqfreak, seq_dict)
     freak_roundup.updateTerminalFreaks(fsheets, terminal_dict)
     types = ['D','L','W']
-    for t in types:
-        for freak in os.listdir(os.path.join(fsheets, t)):
-            if freak.endswith('.freak'):
-                freak_roundup.sortaFreaky(os.path.join(fsheets, t, freak))
-    for freak in os.listdir(os.path.join(fsheets, 'S')):
-        if freak.endswith('.freak'):
-            freak_roundup.sortaFreaky(os.path.join(fsheets, 'S', freak))
+#    for t in types:
+#        for freak in os.listdir(os.path.join(fsheets, t)):
+#            if freak.endswith('.freak'):
+#                freak_roundup.sortaFreaky(os.path.join(fsheets, t, freak))
+#    for freak in os.listdir(os.path.join(fsheets, 'S')):
+#        if freak.endswith('.freak'):
+#            freak_roundup.sortaFreaky(os.path.join(fsheets, 'S', freak))
     runtime = time.clock() - start
     if runtime > 60:
         print '[+] Freak roundup finished in ' + str(runtime / 60) + ' minute(s)'
