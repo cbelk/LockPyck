@@ -24,6 +24,7 @@ import os
 import argparse
 from PyckMaster import super_freak
 from PyckMaster import disp
+from PyckMaster import reset
 
 # This is the main driver for LockPyck. It simply takes the command line arguments and calls
 # the appropriate method(s) and/or sub-driver(s).
@@ -51,20 +52,7 @@ def main ():
             termDirect = args.display[0]
             disp.showTheFreak(os.path.join(FREAKBASE, termDirect, '%s.freak' % args.display))
     elif args.remove:
-        decision = raw_input('[+] Are you sure you want to delete the freaksheets? (y/n) ')
-        if decision.lower() == 'y':
-            try:
-                os.remove(os.path.join(FREAKBASE, 'Seq.freak'))
-            except:
-                pass
-            termDirects = ['L','S','D','W']
-            for direct in termDirects:
-                for freak in os.listdir(os.path.join(FREAKBASE, direct)):
-                    if '.freak' in freak:
-                        os.remove(os.path.join(FREAKBASE, direct, freak))
-        elif decision.lower() != 'n':
-            print '[-] Invalid option.'
-            print '[-] No freaksheets are getting deleted.'
+        reset.freakyReset(FREAKBASE)
     else:
         parser.print_help()
 
