@@ -76,10 +76,10 @@ def updateSeq (sequ, char):
 
 # This is the driver for the freak_roundup. It creates the sequences from the passwords with
 # the help of updateSeq. It then begins calling the functions to update the various freak sheets.
-def main(pl, PYCKBASE):
+def main(pl, LPYCKBASE):
     print '[+] Starting the freak roundup ...'
     start = time.clock()
-    fsheets = os.path.join(PYCKBASE, 'FreakSheets')
+    fsheets = os.path.join(LPYCKBASE, 'FreakSheets')
     sqfreak = os.path.join(fsheets, 'Seq.freak')
     seq_dict = {'freakycount': 0}
     terminal_dict = {}

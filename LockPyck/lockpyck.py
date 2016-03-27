@@ -34,14 +34,16 @@ def main ():
     parser.add_argument('-d', '--display', help='specify the freaksheet to display (eg Seq or L6 if avalaible)')
     parser.add_argument('-r', '--remove', action='store_true', help='remove all freaksheets')
     args = parser.parse_args()
-    PYCKBASE = os.path.abspath('..') ### Need to find a better way to get the base of the project
-    FREAKBASE = os.path.join(PYCKBASE, 'FreakSheets')
+    DRIVER = os.path.abspath(__file__)
+    PYCKBASE = os.path.dirname(DRIVER)
+    LPYCKBASE = PYCKBASE[:-8]
+    FREAKBASE = os.path.join(LPYCKBASE, 'FreakSheets')
 #    if args.psswdHash and args.learn:
         
 #    elif args.passwdHash:
 
     if args.learn:
-        super_freak.main(args.learn, PYCKBASE)
+        super_freak.main(args.learn, LPYCKBASE)
     elif args.display:
         if args.display == 'Seq':
             disp.showTheFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
