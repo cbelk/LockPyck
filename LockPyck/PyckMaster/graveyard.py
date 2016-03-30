@@ -31,11 +31,11 @@
 #    freakout.close()
 #    return
 #
-# This function takes the path to a freak file. For each row in the file, the actual 
-# comma (as opposed to ones in some S terminals) is found by searching the row in reverse. 
-# The row is then split into the terminals and freaks, and a dict is created with the 
-# terminals as keys. The dict is then sorted which produces a sorted list of tuples in 
-# reverse order. The terminals and freaks from this list are written to the appropriate 
+# This function takes the path to a freak file. For each row in the file, the actual
+# comma (as opposed to ones in some S terminals) is found by searching the row in reverse.
+# The row is then split into the terminals and freaks, and a dict is created with the
+# terminals as keys. The dict is then sorted which produces a sorted list of tuples in
+# reverse order. The terminals and freaks from this list are written to the appropriate
 # freak file.
 #def sortaFreaky (freakfile):
 #    print '[+] Sorting the freaks in ' + freakfile + '\n'
@@ -61,7 +61,7 @@
 #        shutil.move(freakfile + '~', freakfile)
 #    return
 #
-# This function takes the Seq.freak and the sequence dict as arguments. If Seq.freak 
+# This function takes the Seq.freak and the sequence dict as arguments. If Seq.freak
 # already exist, the sequences and freaks in it are merged into the dict. The dict is then
 # passed to sortaSeqFreak to be sorted and written.
 #def freakyUpdate (freaksheet, freaky_dict):
@@ -78,10 +78,10 @@
 #    return
 #
 # This function takes the path to a freak file and a terminal dict. It then iterates
-# through the key-value (value is a list here) pairs in the dictionary. It then checks 
+# through the key-value (value is a list here) pairs in the dictionary. It then checks
 # to see if the terminal from each row of the file is in the list. If it is
 # then its associated freak from the file is updated with number of times the given
-# terminal appears in the list. All occurences of that terminal are then removed from 
+# terminal appears in the list. All occurences of that terminal are then removed from
 # the list. Then all the leftover terminals are written to the file with their freaks.
 #def updateTerminalFreaks (directFreak, terminal_dict):
 #    for freakfile, terminalSeq in terminal_dict.iteritems():
@@ -168,12 +168,12 @@
 #def updateTerminalFreaks (sequ, pswd):
 #    if len(sequ) > 0:
 #        i = 0
-#        j = 0 
+#        j = 0
 #        while i < len(sequ):
 #            ctype = sequ[i]
 #            freakName = os.path.join('..', '..', 'FreakSheets', ctype, ctype + str(sequ[i + 1]) + '.freak')
 #            sq = ''
-#            h = j		
+#            h = j
 #            while h < j + sequ[i + 1]:
 #                sq += pswd[h]
 #                h += 1
@@ -292,7 +292,7 @@
 #                                count = int(row[1].strip('\n')) + len(terminalSeq)
 #                                freakout.write(row[0] + ',' + str(count) + '\n')
 #                            elif row[0] in terminalSeq:
-#                                count = int(row[1].strip('\n')) 
+#                                count = int(row[1].strip('\n'))
 #                                occur = terminalSeq.count(row[0])
 #                                count += occur
 #                                freakout.write(row[0] + ',' + str(count) + '\n')
@@ -325,3 +325,29 @@
 #        else:
 #            updateSpecialFreaks(freakf, terminalSeq)
 #    return
+#
+#
+#function takes a sequence as a string and returns the list representation of the
+#sequence with each non-terminal as its own string
+##################there seems to be an error with this###########################
+#def strToList(seq):
+#    print 'orig sequence', seq
+#    count = 0
+#    index = len(seq)-1
+#    lst = []
+#    while(index >= 0):
+#        count = count+1
+#        if(seq[index].isalpha()):
+#            lst.append(seq[index:]) #append substring to list
+#            seq=seq[:-count]
+#            count = 0
+#        index = index-1
+#    print 'end while loop'
+#    print index
+#    print seq
+#    print len(seq)
+#    print 'printing lst', lst
+#    print 'reversing lst'
+#    lst.reverse()  #reverse list so that non-terms are in correct order
+#    print 'printing reversed lst', lst
+#    return lst

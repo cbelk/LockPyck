@@ -24,66 +24,41 @@
 #necessary imports
 import os
 import operator
-import Queue
+import freak_roundup
 try:
     import cPickle as pickle
 except:
     import pickle
 
-#global priority queue used to hold pre-terms to be used by pyckTools
-#items in queue are prioritized based on frequency
-gloablQueue = Queue.PriorityQueue()
+#global list used to hold pre-terms to be used by pyckTools
+#items in list are not in order or priority
+globalList = []
 
-
-#function takes a sequence as a string and returns the list representation of the
-#sequence with each non-terminal as its own string
-def strToList( seq ):
-    count = 0
-    index = len(seq)-1
-    tmp = []
-    while(len(seq)>0):
-        count = count+1
-        if(seq[index].isalpha()):
-            tmp.append(seq[index:]) #append substring to list
-            seq=seq[:-count]
-            count = 0
-        index = index-1
-    tmp.reverse();  #reverse list so that non-terms are in correct order
-    return tmp
-
-# This function takes the path to a freaksheet. It un-pickles it, and passes it to sorted,
-# which returns a sorted list of tuples.
-def sortaFreaky(freaksheet):
-    if os.path.isfile(freaksheet):
-        with open(freaksheet, 'rb') as freakin:
-            print freaksheet +' opened success'
-            stale_pickle = pickle.load(freakin)
-        freakin.close()
-        return sorted(stale_pickle.items(), key=operator.itemgetter(1), reverse=True)
+#function add to global list adds a list of pre-terminals to the list
+def addToGlobal( ptList ):
+    globalList.extend( ptList )
     return
-
-
 
 #notdbd takes a sequence (a list of non-terminals and an associated frequency) and
 #the path to the FreakSheets Directory as arguments
 #the algorithm generates all permutations of a password with a single non-terminal at
 #the right end. The list of permutations and their associated frequencies is returned
 def notdbd( seqList, freaksPath):
-
     resultList = []
     #loop through sequence non-terminals excluding the last one
     for x in range(0,len(seqList[0])-1):
         #replace non-terminals in sequence list with a list of terminals
         fp = freaksPath+seqList[0][x][0]+'/'+seqList[0][x]+'.freak'
-        tmp = sortaFreaky(fp)
-        seqList[0][x] = tmp[1:len(tmp)]
+        #call sortaFreaky from freak_roundup file to get tmp list
+        tmp = freak_roundup.sortaFreaky(fp)
+        seqList[0][x] = tmp[1:len(tmp)-1]
     #calculate number of results in result list
     numResults = 1
     for x in range(0, len(seqList[0])):
         numResults = numResults* (len(seqList[0][x]))
     #initialize empty list of length numResults
     for x in range(0, numResults-1):
-        temp = ["",1]
+        temp = [[''],1]
         resultList.append(temp)
 
     #generate all permutations excluding the non-terminal at end
@@ -91,12 +66,12 @@ def notdbd( seqList, freaksPath):
         if len(seqList[0][x]) > 1: #process lists
             for i in range(0, len(resultList)):
                 #append terminal a number of strings in result
-                resultList[i][0] +=seqList[0][x][i%len(seqList[0][x])][0]
+                resultList[i][0][0] +=seqList[0][x][i%len(seqList[0][x])][0]
                 #multiply freaks for priority
                 resultList[i][1] *=seqList[0][x][i%len(seqList[0][x])][1]
     #append non-terminal to end of each entry
     for x in range(0, len(resultList)):
-        resultList[x][0] +=seqList[0][len(seqList[0])-1]
+        resultList[x][0].append(seqList[0][len(seqList[0])-1])
         resultList[x][1] *= seqList[0][1][1] #multiply freak by sequence freak
     #return resulting list
     return resultList
@@ -106,22 +81,26 @@ def notdbd( seqList, freaksPath):
 def main():
     #we need to replace these hard coded paths
     pathToFreaks = '/home/trey_watford/lockpyck/LockPyck/FreakSheets/'
-    seqs = sortaFreaky('/home/trey_watford/lockpyck/LockPyck/FreakSheets/Seq.freak')
+    #seqs = sortaFreaky('/home/trey_watford/lockpyck/LockPyck/FreakSheets/Seq.freak')
     seqList = []
-    #convert all sequences to lists
-    print 'converting sequences to lists\n'
-    for x in range(1, len(seqs)):
-        temp = []
-        temp.append(strToList(seqs[x][0]))    #replace string with sequence
-        temp.append(seqs[x][1])
-        seqList.append(temp)
+    seqList.append([['L14', 'L14'], 3])
+#    for x in range(0, len(seqs)):
+#        temp = []
+#        temp.append(strToList(seqs[x][0]))    #replace string with sequence
+#        temp.append(seqs[x][1])
+#        seqList.append(temp)
     print '[+] sequences converted'
     print 'calling notdbd on each sequence'
-    for x in range(0, len(seqList)-1):
+    for x in range(0, len(seqList)):
         preTermList = notdbd(seqList[x], pathToFreaks )
+        #print length of preterm list for testing purposes
+        print 'len preTermList = ', len(preTermList)
+        addToGlobal( preTermList)
+    print 'len globalList = ', len(globalList)
         #print preTermList for testing purposes
         #for x in range(0, len(preTermList)-1):
-            #print preTermList[x]
+        #    print 'preterms'
+        #    print preTermList[x]
     return
 
 
