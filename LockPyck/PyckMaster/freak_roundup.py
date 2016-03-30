@@ -22,6 +22,7 @@
 
 import os
 import operator
+import multiprocessing
 from collections import Counter
 try:
     import cPickle as pickle
@@ -49,10 +50,11 @@ def freakyUpdate (freaksheet, freaky_dict):
     return
 
 # This function takes the path to the FreakSheets directory and a terminal dict.
-# Then for each entry in the dict, it uses the key to create the path its freaksheet
+# Then for each entry in the dict, it uses the key to create the path to its freaksheet
 # and the list value is turned into a freaky dict. These are both passed to freakyUpdate
 # for pickling.
 def updateTerminalFreaks (directFreak, terminal_dict):
+    freaky_jobs = []
     for freakfile, terminalSeq in terminal_dict.iteritems():
         freakf = os.path.join(directFreak, freakfile[:1], freakfile + '.freak')
         freaky_dict = {'freakycount': 0}
@@ -64,7 +66,10 @@ def updateTerminalFreaks (directFreak, terminal_dict):
             while c > 0:
                 terminalSeq.remove(seq)
                 c -= 1
-        freakyUpdate(freakf, freaky_dict)
+        proc = multiprocessing.Process(target=freakyUpdate, args=(freakf, freaky_dict))
+        freaky_jobs.append(proc)
+        proc.start()
+#        freakyUpdate(freakf, freaky_dict)
     return
 
 # This function takes a sequence, its corresponding password, and the terminal dict.
