@@ -35,6 +35,7 @@ except:
 # is pickled and dumped back to file. If the file doesn't exist the dict is pickled
 # and dumped to file.
 def freakyUpdate (freaksheet, freaky_dict):
+    print '[+] FreakyUpdate: Updating %s' % freaksheet
     if os.path.isfile(freaksheet) and os.stat(freaksheet).st_size > 0:
         with open(freaksheet, 'rb') as freakin:
             stale_pickle = pickle.load(freakin)
@@ -55,21 +56,53 @@ def freakyUpdate (freaksheet, freaky_dict):
 # for pickling.
 def updateTerminalFreaks (directFreak, terminal_dict):
     freaky_jobs = []
+    pool_size = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=3,)
     for freakfile, terminalSeq in terminal_dict.iteritems():
-        freakf = os.path.join(directFreak, freakfile[:1], freakfile + '.freak')
-        freaky_dict = {'freakycount': 0}
-        while len(terminalSeq) > 0:
-            seq = terminalSeq[0]
-            c = terminalSeq.count(seq)
-            freaky_dict[seq] = c
-            freaky_dict['freakycount'] += c
-            while c > 0:
-                terminalSeq.remove(seq)
-                c -= 1
-        proc = multiprocessing.Process(target=freakyUpdate, args=(freakf, freaky_dict))
-        freaky_jobs.append(proc)
-        proc.start()
+        freaky_jobs.append((freakfile, terminalSeq, directFreak))
+    pool_outputs = pool.map(freakyCreator, freaky_jobs)
+    pool.close()
+    pool.join()
+#    for outp in pool_outputs:
+#        freakyUpdates(outp)
+#        freakf = os.path.join(directFreak, freakfile[:1], freakfile + '.freak')
+#        freaky_dict = {'freakycount': 0}
+#        while len(terminalSeq) > 0:
+#            seq = terminalSeq[0]
+#            c = terminalSeq.count(seq)
+#            freaky_dict[seq] = c
+#            freaky_dict['freakycount'] += c
+#            while c > 0:
+#                terminalSeq.remove(seq)
+#                c -= 1
+#        proc = multiprocessing.Process(target=freakyUpdate, args=(freakf, freaky_dict))
+#        freaky_jobs.append(proc)
+#        proc.start()
+#        tupls.append((freakf, freaky_dict,))
+#    pool_size = multiprocessing.cpu_count()
+#    pool = multiprocessing.Pool(processes=pool_size, initializer=start_proc, maxtasksperchild=3,)
+#    print tupls
+#    pool_outputs = pool.map(freakyUpdates, tupls)
+#    pool.close()
+#    pool.join()
 #        freakyUpdate(freakf, freaky_dict)
+    return
+
+def freakyCreator (freaky_tuple):
+    freakfile = freaky_tuple[0]
+    terminalSeq = freaky_tuple[1]
+    directFreak = freaky_tuple[2]
+    freakf = os.path.join(directFreak, freakfile[:1], freakfile + '.freak')
+    freaky_dict = {'freakycount': 0}
+    while len(terminalSeq) > 0:
+        seq = terminalSeq[0]
+        c = terminalSeq.count(seq)
+        freaky_dict[seq] = c
+        freaky_dict['freakycount'] += c
+        while c > 0:
+            terminalSeq.remove(seq)
+            c -= 1
+    freakyUpdate(freakf, freaky_dict,)
     return
 
 # This function takes a sequence, its corresponding password, and the terminal dict.
