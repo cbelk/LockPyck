@@ -4,6 +4,7 @@
 #                                                                                       #
 #    LockPyck -- A Password Cracker Powered By Probabilistic Context free grammars      #
 #    Copyright (C) 2016  Christian Belk -- cbelk88@gmail.com                            #
+#                        Trey Watford   -- treyjustinwatford@gmail.com                  #
 #                                                                                       #
 #    This program is free software: you can redistribute it and/or modify               #
 #    it under the terms of the GNU General Public License as published by               #
@@ -90,14 +91,14 @@ def updateTerminalFreaks (directFreak, terminal_dict):
 
 def freakyCreator (freaky_tuple):
     freakfile = freaky_tuple[0]
-    print '[!] freakyCreator: working on %s' % freakfile
+#    print '[!] freakyCreator: working on %s' % freakfile
     terminalSeq = freaky_tuple[1]
     directFreak = freaky_tuple[2]
     freakf = os.path.join(directFreak, freakfile[:1], freakfile + '.freak')
     freaky_dict = {'freakycount': 0}
     while len(terminalSeq) > 0:
         seq = terminalSeq[0]
-        print '[!] freakyCreator: processing sequence: %s' % seq
+#        print '[!] freakyCreator: processing sequence: %s' % seq
         c = terminalSeq.count(seq)
         freaky_dict[seq] = c
         freaky_dict['freakycount'] += c

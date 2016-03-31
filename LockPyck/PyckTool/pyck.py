@@ -4,6 +4,7 @@
 #                                                                                       #
 #    LockPyck -- A Password Cracker Powered By Probabilistic Context free grammars      #
 #    Copyright (C) 2016  Christian Belk -- cbelk88@gmail.com                            #
+#                        Trey Watford   -- treyjustinwatford@gmail.com                  #
 #                                                                                       #
 #    This program is free software: you can redistribute it and/or modify               #
 #    it under the terms of the GNU General Public License as published by               #
@@ -22,6 +23,7 @@
 
 import hashlib
 import os
+from PyckMaster import freak_roundup
 
 # This function takes a tuple consisting of a preterminal (represented as a list) and a password
 # list (target hashed list). It first determines the non-terminal in the preterminal by searching
@@ -30,37 +32,17 @@ import os
 # If it is, the hash and correspomding passwords are returned.
 def cutTheKey (tup):
     preterminal = tup[0]
-    passlist = tup[1]
-    nonterm = ''
-    for term in preterminal:
-        if len(term) >= 2 and term[0].isalpha() and term[1].isdigit():
-            nonterm = term
+    hashlist = tup[1]
+    nonterm = preterminal[1]
     freaksheet = os.path.join('..', '..', 'FreakSheets', nonterm[0], '%s.freak' % nonterm)
-    with open(freaksheet) as freakin:
-        for row in freakin:
-            row = row.strip('\n')
-            dig = len(row) - 1
-            while True:
-                if row[dig].isdigit():
-                    dig -= 1
-                elif row[dig] == ',':
-                    break
-            terminal = row[:dig]
-            if terminal != 'freakycount':
-                password = ''
-                for term in preterminal:
-                    if term == nonterm:
-                        password += terminal
-                    else:
-                        password += term
-                hashed = hashlib.md5()
-                hashed.update(password)
-                hashstring = hashed.hexdigest()
-#                print password + '\n'
-#                print hashstring
-                if hashstring in passlist:
-                    print 'found %s' % password
-                    print hashstring
-                    return [hashstring, password]
-    freakin.close()
-    return
+    freaks = freak_roundup.sortaFreaky(freaksheet)
+    success = []
+    for freak in freaks:
+        if freak[0] != 'freakycount':
+            passguess = '%s%s' % (preterminal[0], freak[0])
+            hashed = hashlib.md5()
+            hashed.update(passguess)
+            hashstring = hashed.hexdigest()
+            if hashstring in hashlist:
+                success.append([hashstring, passguess])
+    return success
