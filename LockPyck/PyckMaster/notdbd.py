@@ -52,7 +52,8 @@ def emptyGlobal():
 #notdbd takes a sequence (a list of non-terminals and an associated frequency) and
 #the path to the FreakSheets Directory as arguments
 #the algorithm generates all permutations of a password with a single non-terminal at
-#the right end. The list of permutations and their associated frequencies is returned
+#the right end. The list of permutations and their associated frequencies is added
+#to the global list for use by the PyckTools
 def notdbd( seqList, freaksPath):
     resultList = []
     #loop through sequence non-terminals excluding the last one
@@ -83,8 +84,11 @@ def notdbd( seqList, freaksPath):
     for x in range(0, len(resultList)):
         resultList[x][0].append(seqList[0][len(seqList[0])-1])
         resultList[x][1] *= seqList[0][1][1] #multiply freak by sequence freak
-    #return resulting list
-    return resultList
+    
+    #add result list to global list
+    addToGlobal( resultList )
+    #return from function
+    return
 
 
 #driver function used for testing
