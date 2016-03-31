@@ -39,6 +39,16 @@ def addToGlobal( ptList ):
     globalList.extend( ptList )
     return
 
+#empties global list and returns a list of lists (pre-terminals) in the format
+#[['someTextHere', 'L8'],['someothertextHere', 'S3'] ]
+def emptyGlobal():
+    preTerms = []
+    for x in range(0, len(globalList)-1):
+        preTerms.append(globalList[x][0])
+    del globalList[:]
+    return preTerms
+
+
 #notdbd takes a sequence (a list of non-terminals and an associated frequency) and
 #the path to the FreakSheets Directory as arguments
 #the algorithm generates all permutations of a password with a single non-terminal at
@@ -78,31 +88,34 @@ def notdbd( seqList, freaksPath):
 
 
 #driver function used for testing
-def main():
+#def main():
     #we need to replace these hard coded paths
-    pathToFreaks = '/home/trey_watford/lockpyck/LockPyck/FreakSheets/'
+#    pathToFreaks = '/home/trey_watford/lockpyck/LockPyck/FreakSheets/'
     #seqs = sortaFreaky('/home/trey_watford/lockpyck/LockPyck/FreakSheets/Seq.freak')
-    seqList = []
-    seqList.append([['L14', 'L14'], 3])
+#    seqList = [['L18', 'S3'], 3]
 #    for x in range(0, len(seqs)):
 #        temp = []
 #        temp.append(strToList(seqs[x][0]))    #replace string with sequence
 #        temp.append(seqs[x][1])
 #        seqList.append(temp)
-    print '[+] sequences converted'
-    print 'calling notdbd on each sequence'
-    for x in range(0, len(seqList)):
-        preTermList = notdbd(seqList[x], pathToFreaks )
-        #print length of preterm list for testing purposes
-        print 'len preTermList = ', len(preTermList)
-        addToGlobal( preTermList)
-    print 'len globalList = ', len(globalList)
-        #print preTermList for testing purposes
-        #for x in range(0, len(preTermList)-1):
-        #    print 'preterms'
-        #    print preTermList[x]
-    return
+#    print '[+] sequences converted'
+#    print 'calling notdbd on each sequence'
+#    #for x in range(0, len(seqList)):
+#    preTermList = notdbd(seqList, pathToFreaks )
+#    #print length of preterm list for testing purposes
+#    print 'len preTermList = ', len(preTermList)
+#    addToGlobal( preTermList)
+#    print 'len globalList = ', len(globalList)
+#    tempList = emptyGlobal()
+#    #print tempList
+#    print globalList
+#    print len(globalList)
+#        #print preTermList for testing purposes
+#        #for x in range(0, len(preTermList)-1):
+#        #    print 'preterms'
+#        #    print preTermList[x]
+#    return
 
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
