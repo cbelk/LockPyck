@@ -40,8 +40,8 @@ def main ():
     PYCKBASE = os.path.dirname(DRIVER)
     LPYCKBASE = PYCKBASE[:-8]
     FREAKBASE = os.path.join(LPYCKBASE, 'FreakSheets')
-    sys.path.insert(os.path.join(PYCKBASE, 'PyckMaster'))
-    sys.path.insert(os.path.join(PYCKBASE, 'PyckTool'))
+    sys.path.insert(1, os.path.join(PYCKBASE, 'PyckMaster'))
+    sys.path.insert(1, os.path.join(PYCKBASE, 'PyckTool'))
 #    if args.psswdHash and args.learn:
         
 #    elif args.passwdHash:
@@ -51,6 +51,8 @@ def main ():
     elif args.display:
         if args.display == 'Seq':
             disp.showTheFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
+        elif args.display == 'NDBD':
+            disp.showTheSpecialFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
         else:
             termDirect = args.display[0]
             disp.showTheFreak(os.path.join(FREAKBASE, termDirect, '%s.freak' % args.display))

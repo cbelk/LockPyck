@@ -82,8 +82,10 @@ def main(pl, LPYCKBASE):
     start = time.clock()
     fsheets = os.path.join(LPYCKBASE, 'FreakSheets')
     sqfreak = os.path.join(fsheets, 'Seq.freak')
+    ndbdfreak = os.path.join(fsheets, 'NDBD.freak')
     seq_dict = {'freakycount': 0}
     terminal_dict = {}
+    ndbd_dict = {}
     with open(pl) as passlist:
         for pswd in passlist:
             seq = []
@@ -94,14 +96,25 @@ def main(pl, LPYCKBASE):
             seqString = ''
             for c in seq:
                 seqString += str(c)
+            size = len(seq)
+            i = 0
+            ndbd_seq = []
+            while i < size:
+                ndbd_seq.append('%s%d' % (seq[i], seq[i+1]))
+                i += 2
+            ndbd_dict[seqString] = ndbd_seq
             if seqString in seq_dict:
                 seq_dict[seqString] += 1
             else:
                 seq_dict[seqString] = 1
             seq_dict['freakycount'] += 1
     passlist.close()
+    print '[+] Updating NDBD.freak ...'
+    freak_roundup.specialFreakyUpdate(ndbdfreak, ndbd_dict)
+    del ndbd_dict
     print '[+] Updating Seq.freak ...'
     freak_roundup.freakyUpdate(sqfreak, seq_dict)
+    del seq_dict
     print '[+] Updating the terminal freaks ...'
     freak_roundup.updateTerminalFreaks(fsheets, terminal_dict)
     runtime = time.clock() - start

@@ -29,12 +29,22 @@ import freak_roundup
 # if it exists.
 def showTheFreak (freaksheet):
     if os.path.isfile(freaksheet):
-        with open(freaksheet, 'rb') as freakin:
-            stale_pickle = pickle.load(freakin)
-        freakin.close()
         freaks = freak_roundup.sortaFreaky(freaksheet)
         print '[+] UnPickled Contents of %s:' % freaksheet
         for freak in freaks:
             print '%s, %d' % (freak[0], freak[1])
+        del freaks
+    else:
+        print '[-] The specified file doesn\'t exist'
+
+def showTheSpecialFreak (freaksheet):
+    if os.path.isfile(freaksheet):
+        with open(freaksheet, 'rb') as freakin:
+            stale_pickle = pickle.load(freakin)
+        freakin.close()
+        print '[+] UnPickled Contents of %s:' % freaksheet
+        for seqstring, seqlist in stale_pickle.iteritems():
+            print '%s ==> %s' % (seqstring, str(seqlist))
+        del stale_pickle
     else:
         print '[-] The specified file doesn\'t exist'

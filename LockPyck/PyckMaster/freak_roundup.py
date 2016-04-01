@@ -51,6 +51,22 @@ def freakyUpdate (freaksheet, freaky_dict):
         freakout.close()
     return
 
+def specialFreakyUpdate (freaksheet, ndbd_dict):
+    print '[+] FreakyUpdate: Updating %s' % freaksheet
+    if os.path.isfile(freaksheet) and os.stat(freaksheet).st_size > 0:
+        with open(freaksheet, 'rb') as freakin:
+            stale_pickle = pickle.load(freakin)
+        freakin.close()
+        out_dict = dict(stale_pickle.items() + ndbd_dict.items())
+        with open(freaksheet, 'wb') as freakout:
+            pickle.dump(out_dict, freakout)
+        freakout.close()
+    else:
+        with open(freaksheet, 'wb') as freakout:
+            pickle.dump(ndbd_dict, freakout)
+        freakout.close()
+    return   
+
 # This function takes the path to the FreakSheets directory and a terminal dict.
 # Then for each entry in the dict, it uses the key to create the path to its freaksheet
 # and the list value is turned into a freaky dict. These are both passed to freakyUpdate
@@ -140,4 +156,13 @@ def sortaFreaky (freaksheet):
             stale_pickle = pickle.load(freakin)
         freakin.close()
         return sorted(stale_pickle.items(), key=operator.itemgetter(1), reverse=True)
+    return
+
+# This funtion takes the path to a freaksheet. It un-pickles it and returns it.
+def getMeThatFreak (freaksheet):
+    if os.path.isfile(freaksheet):
+        with open(freaksheet, 'rb') as freakin:
+            stale_pickle = pickle.load(freakin)
+        freakin.close()
+        return stale_pickle
     return

@@ -28,6 +28,7 @@ def freakyReset (FREAKBASE):
     if decision.lower() == 'y':
         try:
             os.remove(os.path.join(FREAKBASE, 'Seq.freak'))
+            os.remove(os.path.join(FREAKBASE, 'NDBD.freak'))
         except:
             pass
         termDirects = ['L','S','D','W']
