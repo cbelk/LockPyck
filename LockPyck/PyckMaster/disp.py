@@ -21,6 +21,10 @@
 #                                                                                       #
 #########################################################################################
 
+# This file contains the functions needed to display the various freaksheets.
+#
+# Author: Christian Belk
+
 import os
 import pickle
 import freak_roundup
@@ -37,6 +41,8 @@ def showTheFreak (freaksheet):
     else:
         print '[-] The specified file doesn\'t exist'
 
+# This function takes the path to the NDBD.freak, unpickles it, and displays it's contents if
+# it exist.
 def showTheSpecialFreak (freaksheet):
     if os.path.isfile(freaksheet):
         with open(freaksheet, 'rb') as freakin:

@@ -21,8 +21,15 @@
 #                                                                                       #
 #########################################################################################
 
+# This file contains the function needed to delete the freaksheets.
+#
+# Author: Christian Belk
+
 import os
 
+# This function takes the path to the FreakSheets directory and then deletes all of the 
+# freaksheets there and in all the terminal subdirectories if the user verifies they want
+# them deleted.
 def freakyReset (FREAKBASE):
     decision = raw_input('[+] Are you sure you want to delete the freaksheets? (y/n) ')
     if decision.lower() == 'y':

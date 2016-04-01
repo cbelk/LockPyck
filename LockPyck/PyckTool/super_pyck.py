@@ -25,6 +25,14 @@ import multiprocessing
 import pyck
 from PyckMaster import notdbd
 
+# This file contains the sub-driver for the pycking process and the various functions it
+# needs to operate. The dicts:
+# cracked => key = hash; value = list of plaintext(s) that hashed to the key hash
+#
+# Author: Christian Belk
+
+# This function takes the path to the file containing the hashlist, reads the contents into
+# the hashlist, and returns it.
 def getThoseHashes (hashfile):
     hashlist = []
     with open(hashfile, 'r') as hashin:
@@ -33,6 +41,10 @@ def getThoseHashes (hashfile):
     hashin.close()
     return hashlist
 
+# This function takes a list of successful cracks (plaintext) and the hashlist. It then adds the hashed
+# passwords as the key to the cracked dict and the plaintext into the list (value). Note: list is used
+# since collision is possible with random user created passwords (though very, very low probability).
+# **Might need to take out the code that removes the hash from hashlist to allow for collision***
 cracked = {}
 def updateCrackedPasses (success, hashlist):
     if success[0] in cracked:
@@ -45,6 +57,9 @@ def updateCrackedPasses (success, hashlist):
             c -= 1
     return hashlist
 
+# This function takes the path to the file where the successfuly cracked passwords (or lack thereof in
+# the worse case) are stored, and writes the contents of cracked there if cracked is not empty, else
+# it prints the failure message.
 def crackedWriter (crackedfile):
     with open(crackedfile, 'a+') as crackedout:
         if cracked:
@@ -53,7 +68,9 @@ def crackedWriter (crackedfile):
                     crackedout.write('[+] Hashed: %s  ||  Password: %s' % (hashd, cc))
         else:
             crackedout.write('[-] No hashes were cracked on this run.')
-        
+
+# This is the sub-driver for the pycking process. It keeps looping as long as there are hashes to be
+# cracked, getting the preterms from the global list and starting a pool of pyck workers to do some cracking.
 def main (hashfile, crackedfile):
     hashlist = getThoseHashes(hashfile)
     while hashlist:

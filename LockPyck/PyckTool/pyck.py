@@ -21,6 +21,10 @@
 #                                                                                       #
 #########################################################################################
 
+# This file contains the function that serves as the workers in the pool for the cracking process.
+#
+# Author: Christian Belk
+
 import hashlib
 import os
 from PyckMaster import freak_roundup

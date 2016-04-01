@@ -21,6 +21,14 @@
 #                                                                                       #
 #########################################################################################
 
+# This file contains the various functions for creating, storing, and sorting the freaks. The dicts:
+# freaky_dict   => key = string (representing sequence or terminal); value = int (the freak)
+# ndbd_dict     => key = string (representing sequence); value = list version of sequence needed by notdbd
+# terminal_dict => key = string (representing non-terminal); value = list of terminals for that non-terminal
+# stale_pickle  => the dict returned from un-pickling a given freaksheet
+#
+# Author: Christian Belk
+
 import os
 import operator
 import multiprocessing
@@ -51,6 +59,9 @@ def freakyUpdate (freaksheet, freaky_dict):
         freakout.close()
     return
 
+# This function takes the path to the NDBD.freak sheet and the ndbd_dict. If the
+# file exists, its contents are un-pickled, and merged with ndbd_dict. It's then
+# pickled back to file. Else, it's just pickled to file.
 def specialFreakyUpdate (freaksheet, ndbd_dict):
     print '[+] FreakyUpdate: Updating %s' % freaksheet
     if os.path.isfile(freaksheet) and os.stat(freaksheet).st_size > 0:
@@ -68,43 +79,23 @@ def specialFreakyUpdate (freaksheet, ndbd_dict):
     return   
 
 # This function takes the path to the FreakSheets directory and a terminal dict.
-# Then for each entry in the dict, it uses the key to create the path to its freaksheet
-# and the list value is turned into a freaky dict. These are both passed to freakyUpdate
-# for pickling.
+# It then creates a list of jobs (tuples) which it passes to a pool of workers running 
+# the freakyCreator function.
 def updateTerminalFreaks (directFreak, terminal_dict):
     freaky_jobs = []
     pool_size = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=3,)
     for freakfile, terminalSeq in terminal_dict.iteritems():
         freaky_jobs.append((freakfile, terminalSeq, directFreak))
-    pool_outputs = pool.map(freakyCreator, freaky_jobs)
+    pool.map(freakyCreator, freaky_jobs)
     pool.close()
     pool.join()
-#    for outp in pool_outputs:
-#        freakyUpdates(outp)
-#        freakf = os.path.join(directFreak, freakfile[:1], freakfile + '.freak')
-#        freaky_dict = {'freakycount': 0}
-#        while len(terminalSeq) > 0:
-#            seq = terminalSeq[0]
-#            c = terminalSeq.count(seq)
-#            freaky_dict[seq] = c
-#            freaky_dict['freakycount'] += c
-#            while c > 0:
-#                terminalSeq.remove(seq)
-#                c -= 1
-#        proc = multiprocessing.Process(target=freakyUpdate, args=(freakf, freaky_dict))
-#        freaky_jobs.append(proc)
-#        proc.start()
-#        tupls.append((freakf, freaky_dict,))
-#    pool_size = multiprocessing.cpu_count()
-#    pool = multiprocessing.Pool(processes=pool_size, initializer=start_proc, maxtasksperchild=3,)
-#    print tupls
-#    pool_outputs = pool.map(freakyUpdates, tupls)
-#    pool.close()
-#    pool.join()
-#        freakyUpdate(freakf, freaky_dict)
     return
 
+# This function takes a tuple consisting of a non-terminal, a list of terminals belonging to 
+# that non-terminal, and the path to the FreakSheets directory. It then creates a freaky_dict
+# using the terminal list and the path to the freaksheet using the non-terminal. These are 
+# then passed to freakyUpdate to be pickled.
 def freakyCreator (freaky_tuple):
     freakfile = freaky_tuple[0]
 #    print '[!] freakyCreator: working on %s' % freakfile
@@ -126,8 +117,8 @@ def freakyCreator (freaky_tuple):
 
 # This function takes a sequence, its corresponding password, and the terminal dict.
 # Then for each single non-terminal in the sequence, it isolates it's corresponding part
-# from the password, and checks to see if that terminal exist in the dict, updating it's
-# freak if it does, else adding it with a freak of 1. 
+# from the password, and checks to see if that non-terminal exist in the dict, appending
+# the sequence if it does, else adding it with a list (value) containing the sequence.
 def updateTerminals (sequ, pswd, terminal_dict):
     if len(sequ) > 0:
         i = 0
@@ -158,7 +149,7 @@ def sortaFreaky (freaksheet):
         return sorted(stale_pickle.items(), key=operator.itemgetter(1), reverse=True)
     return
 
-# This funtion takes the path to a freaksheet. It un-pickles it and returns it.
+# This funtion takes the path to a freaksheet. It un-pickles it and returns it if it exist.
 def getMeThatFreak (freaksheet):
     if os.path.isfile(freaksheet):
         with open(freaksheet, 'rb') as freakin:

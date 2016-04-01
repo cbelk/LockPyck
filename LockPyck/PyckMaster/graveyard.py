@@ -19,6 +19,9 @@
 #                                                                                       #
 #########################################################################################
 #
+# Authors: Christian Belk
+#          Trey Watford
+#
 ######################### The graveyard of inefficient freaks #########################
 #
 # This function takes the path to Seq.freak and the sequence dict. It sorts the dict and

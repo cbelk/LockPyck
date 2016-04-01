@@ -21,6 +21,15 @@
 #                                                                                       #
 #########################################################################################
 
+# This file contains the sub-driver for the freak_roundup and the function used 
+# to create the sequence. The dicts and such:
+# terminal_dict => key = string (representing non-terminal); value = list of terminals for that non-terminal
+# seq_dict      => key = string (representing sequence); value = int (associated freak)
+# ndbd_dict     => key = string (representing sequence); value = list version of sequence needed by notdbd
+# sequ          => list used to hold individual parts of non-terminals in the sequence. eg ['L', 8, 'D', 3]
+#
+# Author: Christian Belk
+
 import os
 import time
 import string
@@ -75,7 +84,7 @@ def updateSeq (sequ, char):
             sequ.append(1)
     return
 
-# This is the driver for the freak_roundup. It creates the sequences from the passwords with
+# This is the sub-driver for the freak_roundup. It creates the sequences from the passwords with
 # the help of updateSeq. It then begins calling the functions to update the various freak sheets.
 def main(pl, LPYCKBASE):
     print '[+] Starting the freak roundup ...'
