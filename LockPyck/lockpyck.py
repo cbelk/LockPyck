@@ -32,6 +32,7 @@ import sys
 from PyckMaster import super_freak
 from PyckMaster import disp
 from PyckMaster import reset
+from PyckMaster import notdbd
 
 # This is the main driver for LockPyck. It simply takes the command line arguments and calls
 # the appropriate method(s) and/or sub-driver(s).
@@ -50,9 +51,9 @@ def main ():
     sys.path.insert(1, os.path.join(PYCKBASE, 'PyckTool'))
 #    if args.psswdHash and args.learn:
         
-#    elif args.passwdHash:
-
-    if args.learn:
+    if args.psswdHash:
+        notdbd.notdbd(FREAKBASE)
+    elif args.learn:
         super_freak.main(args.learn, LPYCKBASE)
     elif args.display:
         if args.display == 'Seq':
