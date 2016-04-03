@@ -26,6 +26,7 @@
 # Author: Christian Belk
 
 import hashlib
+import multiprocessing
 import os
 from PyckMaster import freak_roundup
 
@@ -37,6 +38,7 @@ from PyckMaster import freak_roundup
 def cutTheKey (tup):
     preterminal = tup[0]
     hashlist = tup[1]
+#    print hashlist
     nonterm = preterminal[1]
     freaksheet = os.path.join('..', '..', 'FreakSheets', nonterm[0], '%s.freak' % nonterm)
     freaks = freak_roundup.sortaFreaky(freaksheet)
@@ -44,9 +46,13 @@ def cutTheKey (tup):
     for freak in freaks:
         if freak[0] != 'freakycount':
             passguess = '%s%s' % (preterminal[0], freak[0])
+            print '[+] Pyck: Trying %s' % passguess
             hashed = hashlib.md5()
             hashed.update(passguess)
             hashstring = hashed.hexdigest()
+#            print '[+] Pyck: %s =  %s' % (passguess, hashstring)
             if hashstring in hashlist:
+                print '[+] Pyck: Success %s' % passguess
                 success.append([hashstring, passguess])
+#    print success
     return success

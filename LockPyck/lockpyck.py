@@ -29,10 +29,12 @@
 import os
 import argparse
 import sys
+import multiprocessing
 from PyckMaster import super_freak
 from PyckMaster import disp
 from PyckMaster import reset
 from PyckMaster import notdbd
+from PyckTool import super_pyck
 
 # This is the main driver for LockPyck. It simply takes the command line arguments and calls
 # the appropriate method(s) and/or sub-driver(s).
@@ -47,12 +49,19 @@ def main ():
     PYCKBASE = os.path.dirname(DRIVER)
     LPYCKBASE = PYCKBASE[:-8]
     FREAKBASE = os.path.join(LPYCKBASE, 'FreakSheets')
+    CRACKEDLIST = os.path.join(LPYCKBASE, 'cracked.freak')
     sys.path.insert(1, os.path.join(PYCKBASE, 'PyckMaster'))
     sys.path.insert(1, os.path.join(PYCKBASE, 'PyckTool'))
 #    if args.psswdHash and args.learn:
         
     if args.psswdHash:
-        notdbd.notdbd(FREAKBASE)
+        queue = multiprocessing.Queue()
+        demon = multiprocessing.Process(name='NBDBdaemon', target=notdbd.notdbd, args=(FREAKBASE, queue))
+        demon.daemon = True
+        print '[+] Starting the NotDBD daemon now ...'
+        demon.start()
+        print '[+] Starting up super_pyck ...'
+        super_pyck.main(str(args.psswdHash), CRACKEDLIST, queue)
     elif args.learn:
         super_freak.main(args.learn, LPYCKBASE)
     elif args.display:
