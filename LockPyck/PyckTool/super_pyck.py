@@ -110,7 +110,7 @@ def main (hashfile, crackedfile, queue, FREAKBASE):
                 break
         else:
             print '[+] Super_pyck: No preterms available right now ...'
-            time.sleep(10)
+            time.sleep(5)
     crackedWriter(crackedfile, cracked)
     return
 
