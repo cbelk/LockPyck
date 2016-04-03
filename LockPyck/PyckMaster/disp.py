@@ -54,3 +54,11 @@ def showTheSpecialFreak (freaksheet):
         del stale_pickle
     else:
         print '[-] The specified file doesn\'t exist'
+
+def showTheCrack (freaksheet):
+    if os.path.isfile(freaksheet):
+        with open(freaksheet, 'r') as crack:
+            for row in crack:
+                print row
+    else:
+        print '[-] The specified file doesn\'t exist'

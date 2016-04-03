@@ -48,7 +48,7 @@ def cutTheKey (tup):
         if freak[0] != 'freakycount':
 #            print freak[0]
             passguess = '%s%s' % (preterminal[0], freak[0])
-#            print '[+] Pyck: Trying %s' % passguess
+            print '[+] Pyck: Trying %s' % passguess
             hashed = hashlib.md5()
             hashed.update(passguess)
             hashstring = hashed.hexdigest()

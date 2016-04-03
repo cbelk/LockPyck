@@ -69,6 +69,8 @@ def main ():
             disp.showTheFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
         elif args.display == 'NDBD':
             disp.showTheSpecialFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
+        elif args.display == 'cracked':
+            disp.showTheCrack(os.path.join(LPYCKBASE, '%s.freak' % args.display))
         else:
             termDirect = args.display[0]
             disp.showTheFreak(os.path.join(FREAKBASE, termDirect, '%s.freak' % args.display))
