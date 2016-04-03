@@ -38,15 +38,17 @@ from PyckMaster import freak_roundup
 def cutTheKey (tup):
     preterminal = tup[0]
     hashlist = tup[1]
+    FREAKBASE = tup[2]
 #    print hashlist
     nonterm = preterminal[1]
-    freaksheet = os.path.join('..', '..', 'FreakSheets', nonterm[0], '%s.freak' % nonterm)
+    freaksheet = os.path.join(FREAKBASE, nonterm[0], '%s.freak' % nonterm)
     freaks = freak_roundup.sortaFreaky(freaksheet)
     success = []
     for freak in freaks:
         if freak[0] != 'freakycount':
+#            print freak[0]
             passguess = '%s%s' % (preterminal[0], freak[0])
-            print '[+] Pyck: Trying %s' % passguess
+#            print '[+] Pyck: Trying %s' % passguess
             hashed = hashlib.md5()
             hashed.update(passguess)
             hashstring = hashed.hexdigest()

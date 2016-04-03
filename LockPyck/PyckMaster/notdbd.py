@@ -110,7 +110,7 @@ def notdbd (FREAKBASE, queue):
     seqs = freak_roundup.sortaFreaky(os.path.join(FREAKBASE, 'Seq.freak'))
     ndbd_dict = freak_roundup.getMeThatFreak(os.path.join(FREAKBASE, 'NDBD.freak'))
     if seqs and ndbd_dict:
-        print '[+] notdbd: Generating preterms now ...'
+        print '[+] Notdbd: Generating preterms now ...'
         for seq, freak in seqs:
             if seq != 'freakycount':
                 nontermlist = ndbd_dict[seq]
@@ -144,5 +144,5 @@ def notdbd (FREAKBASE, queue):
                 addToQueue(pretermlist, queue)
                 del pretermlist
                 gc.collect()
-    print '[+] notdbd: Generated all preterms'
+    print '[+] Notdbd: Generated all preterms'
     return

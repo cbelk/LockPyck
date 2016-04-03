@@ -61,7 +61,7 @@ def main ():
         print '[+] Starting the NotDBD daemon now ...'
         demon.start()
         print '[+] Starting up super_pyck ...'
-        super_pyck.main(str(args.psswdHash), CRACKEDLIST, queue)
+        super_pyck.main(str(args.psswdHash), CRACKEDLIST, queue, FREAKBASE)
     elif args.learn:
         super_freak.main(args.learn, LPYCKBASE)
     elif args.display:
