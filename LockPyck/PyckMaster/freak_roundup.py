@@ -31,6 +31,7 @@
 
 import os
 import operator
+import string
 import multiprocessing
 from collections import Counter
 try:
@@ -102,16 +103,21 @@ def freakyCreator (freaky_tuple):
     terminalSeq = freaky_tuple[1]
     directFreak = freaky_tuple[2]
     freakf = os.path.join(directFreak, freakfile[:1], freakfile + '.freak')
-    freaky_dict = {'freakycount': 0}
+    freaky_dict = {'freakycount': len(terminalSeq)}
     while len(terminalSeq) > 0:
         seq = terminalSeq[0]
+        if seq in freaky_dict:
+            freaky_dict[seq] += 1
+        else:
+            freaky_dict[seq] = 1
+        terminalSeq.remove(seq)
 #        print '[!] freakyCreator: processing sequence: %s' % seq
-        c = terminalSeq.count(seq)
-        freaky_dict[seq] = c
-        freaky_dict['freakycount'] += c
-        while c > 0:
-            terminalSeq.remove(seq)
-            c -= 1
+#        c = terminalSeq.count(seq)
+#        freaky_dict[seq] = c
+#        freaky_dict['freakycount'] += c
+#        while c > 0:
+#            terminalSeq.remove(seq)
+#            c -= 1
     freakyUpdate(freakf, freaky_dict,)
     return
 

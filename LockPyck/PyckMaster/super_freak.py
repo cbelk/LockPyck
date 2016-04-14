@@ -33,8 +33,56 @@
 import os
 import time
 import string
+import multiprocessing
 import freak_roundup
-import csv
+
+# This function takes a sequence list and a character. If the sequence is empty,
+# the character type representation {D igit, L etter, S pecial, W hitespace} is
+# added to the list with a count of 1. Otherwise, the previously added char type
+# rep is checked to see if it matches the current type. If it does it's count is
+# incremented, else it's type rep is added to the list with a count of 1.
+#def updateSeq (sequ, char):
+#    if char in string.letters:
+#        if len(sequ) > 0:
+#            if sequ[len(sequ) - 2] == 'L':
+#                sequ[len(sequ) - 1] += 1
+#            else:
+#                sequ.append('L')
+#                sequ.append(1)
+#        else:
+#            sequ.append('L')
+#            sequ.append(1)
+#    elif char in string.digits:
+#        if len(sequ) > 0:
+#            if sequ[len(sequ) - 2] == 'D':
+#                sequ[len(sequ) - 1] += 1
+#            else:
+#                sequ.append('D')
+#                sequ.append(1)
+#        else:
+#            sequ.append('D')
+#            sequ.append(1)
+#    elif char in string.punctuation:
+#        if len(sequ) > 0:
+#            if sequ[len(sequ) - 2] == 'S':
+#                sequ[len(sequ) - 1] += 1
+#            else:
+#                sequ.append('S')
+#                sequ.append(1)
+#        else:
+#            sequ.append('S')
+#            sequ.append(1)
+#    elif char in string.whitespace:
+#        if len(sequ) > 0:
+#            if sequ[len(sequ) - 2] == 'W':
+#                sequ[len(sequ) - 1] += 1
+#            else:
+#                sequ.append('W')
+#                sequ.append(1)
+#        else:
+#            sequ.append('W')
+#            sequ.append(1)
+#    return
 
 # This function takes a sequence list and a character. If the sequence is empty,
 # the character type representation {D igit, L etter, S pecial, W hitespace} is
@@ -82,8 +130,31 @@ def updateSeq (sequ, char):
         else:
             sequ.append('W')
             sequ.append(1)
-    return
+    return sequ
 
+def seqCreator (pswd):
+    seq = []
+    pswd = pswd.strip('\n')
+    for ch in pswd:
+        seq = updateSeq(seq, ch)
+#    terminal_dict = freak_roundup.updateTerminals(seq, pswd, terminal_dict)
+    seqString = ''
+    for c in seq:
+        seqString += str(c)
+    size = len(seq)
+    i = 0
+    ndbd_seq = []
+    while i < size:
+        ndbd_seq.append('%s%d' % (seq[i], seq[i+1]))
+        i += 2
+    return (seqString, ndbd_seq, seq, pswd)
+
+#    ndbd_dict[seqString] = ndbd_seq
+#    if seqString in seq_dict:
+#        seq_dict[seqString] += 1
+#    else:
+#        seq_dict[seqString] = 1
+#    seq_dict['freakycount'] += 1
 # This is the sub-driver for the freak_roundup. It creates the sequences from the passwords with
 # the help of updateSeq. It then begins calling the functions to update the various freak sheets.
 def main(pl, LPYCKBASE):
@@ -95,29 +166,51 @@ def main(pl, LPYCKBASE):
     seq_dict = {'freakycount': 0}
     terminal_dict = {}
     ndbd_dict = {}
-    with open(pl) as passlist:
-        for pswd in passlist:
-            seq = []
-            pswd = pswd.strip('\n')
-            for ch in pswd:
-                updateSeq(seq, ch)
-            terminal_dict = freak_roundup.updateTerminals(seq, pswd, terminal_dict)
-            seqString = ''
-            for c in seq:
-                seqString += str(c)
-            size = len(seq)
-            i = 0
-            ndbd_seq = []
-            while i < size:
-                ndbd_seq.append('%s%d' % (seq[i], seq[i+1]))
-                i += 2
-            ndbd_dict[seqString] = ndbd_seq
-            if seqString in seq_dict:
-                seq_dict[seqString] += 1
-            else:
-                seq_dict[seqString] = 1
-            seq_dict['freakycount'] += 1
-    passlist.close()
+    passlist = []
+    print '[+] Reading in the password file ...'
+    with open(pl) as passfile:
+        for pswd in passfile:
+            passlist.append(pswd)
+#            seq = []
+#            pswd = pswd.strip('\n')
+#            for ch in pswd:
+#                updateSeq(seq, ch)
+#            terminal_dict = freak_roundup.updateTerminals(seq, pswd, terminal_dict)
+#            seqString = ''
+#            for c in seq:
+#                seqString += str(c)
+#            size = len(seq)
+#            i = 0
+#            ndbd_seq = []
+#            while i < size:
+#                ndbd_seq.append('%s%d' % (seq[i], seq[i+1]))
+#                i += 2
+#            ndbd_dict[seqString] = ndbd_seq
+#            if seqString in seq_dict:
+#                seq_dict[seqString] += 1
+#            else:
+#                seq_dict[seqString] = 1
+#            seq_dict['freakycount'] += 1
+    passfile.close()
+    print '[+] Starting the pool of workers to analyze the passwords ...'
+    pool_size = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=3,)
+    pool_outputs = pool.map(seqCreator, passlist)
+    pool.close()
+    pool.join()
+    for tupl in pool_outputs:
+        seqString = tupl[0]
+        ndbd_seq = tupl[1]
+        seq = tupl[2]
+        pswd = tupl[3]
+        terminal_dict = freak_roundup.updateTerminals(seq, pswd, terminal_dict)
+        ndbd_dict[seqString] = ndbd_seq
+        if seqString in seq_dict:
+            seq_dict[seqString] += 1
+        else:
+            seq_dict[seqString] = 1
+        seq_dict['freakycount'] += 1
+    del pool_outputs
     print '[+] Updating NDBD.freak ...'
     freak_roundup.specialFreakyUpdate(ndbdfreak, ndbd_dict)
     del ndbd_dict
