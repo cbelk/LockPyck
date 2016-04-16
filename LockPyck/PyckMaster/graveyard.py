@@ -355,3 +355,62 @@
 #    lst.reverse()  #reverse list so that non-terms are in correct order
 #    print 'printing reversed lst', lst
 #    return lst
+#global list used to hold pre-terms to be used by pyckTools
+#items in list are not in order or priority
+#globalList = []
+#
+#function add to global list adds a list of pre-terminals to the list
+#def addToGlobal( ptList ):
+#    globalList.extend( ptList )
+#    return
+#
+#empties global list and returns a list of lists (pre-terminals) in the format
+#[['someTextHere', 'L8'],['someothertextHere', 'S3'] ]
+#def emptyGlobal():
+#    preTerms = []
+#    for x in range(0, len(globalList)-1):
+#        preTerms.append(globalList[x][0])
+#    del globalList[:]
+#    return preTerms
+#
+#
+#notdbd takes a sequence (a list of non-terminals and an associated frequency) and
+#the path to the FreakSheets Directory as arguments
+#the algorithm generates all permutations of a password with a single non-terminal at
+#the right end. The list of permutations and their associated frequencies is added
+#to the global list for use by the PyckTools
+#def notdbd( seqList, freaksPath):
+#    resultList = []
+#    #loop through sequence non-terminals excluding the last one
+#    for x in range(0,len(seqList[0])-1):
+#        #replace non-terminals in sequence list with a list of terminals
+#        fp = freaksPath+seqList[0][x][0]+'/'+seqList[0][x]+'.freak'
+#        #call sortaFreaky from freak_roundup file to get tmp list
+#        tmp = freak_roundup.sortaFreaky(fp)
+#        seqList[0][x] = tmp[1:len(tmp)-1]
+#    #calculate number of results in result list
+#    numResults = 1
+#    for x in range(0, len(seqList[0])):
+#        numResults = numResults* (len(seqList[0][x]))
+#    #initialize empty list of length numResults
+#    for x in range(0, numResults-1):
+#        temp = [[''],1]
+#        resultList.append(temp)
+#
+#    #generate all permutations excluding the non-terminal at end
+# #   for x in range(0, len(seqList[0])-1):#loop through lists
+# #       if len(seqList[0][x]) > 1: #process lists
+# #           for i in range(0, len(resultList)):
+#                #append terminal a number of strings in result
+# #               resultList[i][0][0] +=seqList[0][x][i%len(seqList[0][x])][0]
+#                #multiply freaks for priority
+# #               resultList[i][1] *=seqList[0][x][i%len(seqList[0][x])][1]
+#    #append non-terminal to end of each entry
+# #   for x in range(0, len(resultList)):
+# #       resultList[x][0].append(seqList[0][len(seqList[0])-1])
+# #       resultList[x][1] *= seqList[0][1][1] #multiply freak by sequence freak
+#    
+#    #add result list to global list
+# #   addToGlobal( resultList )
+#    #return from function
+# #   return
