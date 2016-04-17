@@ -152,7 +152,9 @@ def sortaFreaky (freaksheet):
         with open(freaksheet, 'rb') as freakin:
             stale_pickle = pickle.load(freakin)
         freakin.close()
-        return sorted(stale_pickle.items(), key=operator.itemgetter(1), reverse=True)
+        sort = sorted(stale_pickle.items(), key=operator.itemgetter(1), reverse=True)
+        del stale_pickle
+        return sort
     return
 
 # This funtion takes the path to a freaksheet. It un-pickles it and returns it if it exist.

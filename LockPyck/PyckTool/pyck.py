@@ -54,7 +54,8 @@ def cutTheKey (tup):
             hashstring = hashed.hexdigest()
 #            print '[+] Pyck: %s =  %s' % (passguess, hashstring)
             if hashstring in hashlist:
-                print '[+] Pyck: Success %s' % passguess
+                print '[+] Pyck: Success %s ==> %s' % (hashstring, passguess)
                 success.append([hashstring, passguess])
+    del freaks
 #    print success
     return success

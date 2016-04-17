@@ -32,9 +32,16 @@
 
 import gc
 import os
+import sys
+import time
 import operator
 import itertools
 import freak_roundup
+try:
+    import psutil
+except:
+    print '[-] The psutil module is required.\n[-] You can use a package manager to install it (e.g. pip install psutil).'
+    sys.exit()
 
 # This function takes a list of pre-terminals and the queue. Then each pre-terminal in the list is 
 # appended to the queue.
@@ -76,14 +83,27 @@ def weDoneYet (lengths, indexes):
 def cartesianPreterms (sets, queue, nonterm):
     lengths = []
     indexes = []
+    THRESHOLD = 80
     for s in sets:
         lengths.append(len(s))
         indexes.append(0)
     curr_ind = len(indexes) - 1
     while True:
+        ram = psutil.virtual_memory()
+        swp = psutil.swap_memory()
+        while ram.percent > THRESHOLD:
+            if swp.total == 0:
+                print '[!] CartesianPreterms: Taking a break since memory usage is high ...'
+                time.sleep(30)
+            elif swp.percent > THRESHOLD:
+                print '[!] CartesianPreterms: Taking a break since memory usage is high ...'
+                time.sleep(30)
+            else:
+                break
+            ram = psutil.virtual_memory()
+            swp = psutil.swap_memory()
         partTerm = getPartialTerminal(sets, indexes)
         queue.put([partTerm, nonterm])
-#        queue.append([partTerm, nonterm])
         if weDoneYet(lengths, indexes):
             break
         if indexes[curr_ind] < lengths[curr_ind]:
@@ -98,7 +118,7 @@ def cartesianPreterms (sets, queue, nonterm):
                 indexes[curr_ind] = 0
                 curr_ind += 1
             curr_ind -= 1
-#    return queue
+    return
 
 # This function takes the path to the FreakSheets directory. It uses seqs to get the sequences (string) 
 # in descending order of frequency, and uses ndbd_dict to map the string version of the sequence to its
@@ -109,9 +129,23 @@ def cartesianPreterms (sets, queue, nonterm):
 def notdbd (FREAKBASE, queue):
     seqs = freak_roundup.sortaFreaky(os.path.join(FREAKBASE, 'Seq.freak'))
     ndbd_dict = freak_roundup.getMeThatFreak(os.path.join(FREAKBASE, 'NDBD.freak'))
+    THRESHOLD = 80
     if seqs and ndbd_dict:
         print '[+] Notdbd: Generating preterms now ...'
         for seq, freak in seqs:
+            ram = psutil.virtual_memory()
+            swp = psutil.swap_memory()
+            while ram.percent > THRESHOLD:
+                if swp.total == 0:
+                    print '[!] Notdbd: Taking a break since memory usage is high ...'
+                    time.sleep(30)
+                elif swp.percent > THRESHOLD:
+                    print '[!] Notdbd: Taking a break since memory usage is high ...'
+                    time.sleep(30)
+                else:
+                    break
+                ram = psutil.virtual_memory()
+                swp = psutil.swap_memory()
             if seq != 'freakycount':
                 nontermlist = ndbd_dict[seq]
                 nonterm = nontermlist[len(nontermlist) - 1]
@@ -121,14 +155,17 @@ def notdbd (FREAKBASE, queue):
                 for nterm in nontermlist:
                     sorted_freak = freak_roundup.sortaFreaky(os.path.join(FREAKBASE, nterm[0], '%s.freak' % nterm))
                     nt = [freak[0] for freak in sorted_freak]
+                    del sorted_freak
                     nt.remove('freakycount')
                     reslist.append(nt)
                     del nt
                     i += 1
 #                    print nt
 #                print reslist
-                cartesianPreterms(resList, queue, nonterm)
-                del resList
+                cartesianPreterms(reslist, queue, nonterm)
+                del reslist
+                del nonterm
+#                gc.collect()
 #                permlist = list(itertools.product(*reslist))
 #                print permlist
 #                del reslist
@@ -147,4 +184,5 @@ def notdbd (FREAKBASE, queue):
 #                del pretermlist
 #                gc.collect()
     print '[+] Notdbd: Generated all preterms'
+    queue.put('kcyPkcoL')
     return
