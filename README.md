@@ -1,3 +1,3 @@
-![lockpyck_logo_smaller](https://cloud.githubusercontent.com/assets/14338983/13874479/91d9ecb4-ecce-11e5-9b58-1541fbe33d6b.png)
+![lockpyck_logo_smaller](https://cloud.githubusercontent.com/assets/17939786/14753153/6796924c-08a1-11e6-875f-064c202e1c06.JPG)
 
 LockPyck is a pure python password cracker powered by probabalistic context free grammars.
