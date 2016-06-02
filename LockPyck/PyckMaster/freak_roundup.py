@@ -111,13 +111,6 @@ def freakyCreator (freaky_tuple):
         else:
             freaky_dict[seq] = 1
         terminalSeq.remove(seq)
-#        print '[!] freakyCreator: processing sequence: %s' % seq
-#        c = terminalSeq.count(seq)
-#        freaky_dict[seq] = c
-#        freaky_dict['freakycount'] += c
-#        while c > 0:
-#            terminalSeq.remove(seq)
-#            c -= 1
     freakyUpdate(freakf, freaky_dict,)
     return
 
