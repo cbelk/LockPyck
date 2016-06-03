@@ -31,8 +31,7 @@ import argparse
 import sys
 import multiprocessing
 from PyckMaster import super_freak
-from PyckMaster import disp
-from PyckMaster import reset
+from PyckMaster import utility
 from PyckMaster import notdbd
 from PyckTool import super_pyck
 
@@ -49,6 +48,8 @@ def main ():
     PYCKBASE = os.path.dirname(DRIVER)
     LPYCKBASE = PYCKBASE[:-8]
     FREAKBASE = os.path.join(LPYCKBASE, 'FreakSheets')
+    LOGBASE = os.path.join(LPYCKBASE, 'log')
+    LEARNED = os.path.join(LOGBASE, 'learned.log')
     CRACKEDLIST = os.path.join(LPYCKBASE, 'cracked.freak')
     sys.path.insert(1, os.path.join(PYCKBASE, 'PyckMaster'))
     sys.path.insert(1, os.path.join(PYCKBASE, 'PyckTool'))
@@ -63,19 +64,28 @@ def main ():
         print '[+] Starting up super_pyck ...'
         super_pyck.main(str(args.psswdHash), CRACKEDLIST, queue, FREAKBASE)
     elif args.learn:
-        super_freak.main(args.learn, LPYCKBASE)
+        if utility.corrupt(args.learn, LEARNED):
+            print '[!] The provided password list has been analyzed before.'
+            print '[!] Running it again can cause skewed data.'
+            decision = raw_input('[!] Would you like to run it anyway? (y/n) ')
+            if decision.lower() == 'y':
+                super_freak.main(args.learn, LPYCKBASE)
+                utility.log(LEARNED, '%s\n' % args.learn)
+        else:
+            super_freak.main(args.learn, LPYCKBASE)
+            utility.log(LEARNED, '%s\n' % args.learn)
     elif args.display:
         if args.display == 'Seq':
-            disp.showTheFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
+            utility.showTheFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
         elif args.display == 'NDBD':
-            disp.showTheSpecialFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
+            utility.showTheSpecialFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
         elif args.display == 'cracked':
-            disp.showTheCrack(os.path.join(LPYCKBASE, '%s.freak' % args.display))
+            utility.showTheCrack(os.path.join(LPYCKBASE, '%s.freak' % args.display))
         else:
             termDirect = args.display[0]
-            disp.showTheFreak(os.path.join(FREAKBASE, termDirect, '%s.freak' % args.display))
+            utility.showTheFreak(os.path.join(FREAKBASE, termDirect, '%s.freak' % args.display))
     elif args.remove:
-        reset.freakyReset(FREAKBASE)
+        utility.freakyReset(FREAKBASE, LOGBASE)
     else:
         parser.print_help()
 

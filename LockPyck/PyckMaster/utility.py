@@ -21,7 +21,8 @@
 #                                                                                       #
 #########################################################################################
 
-# This file contains the functions needed to display the various freaksheets.
+# This file contains the utilities for LockPyck, such as various display functions, a logger,
+# and a reset function.
 #
 # Author: Christian Belk
 
@@ -54,7 +55,9 @@ def showTheSpecialFreak (freaksheet):
         del stale_pickle
     else:
         print '[-] The specified file doesn\'t exist'
+    return
 
+# This function takes the path to the crack freaksheet and displays it's contents if it exists.
 def showTheCrack (freaksheet):
     if os.path.isfile(freaksheet):
         with open(freaksheet, 'r') as crack:
@@ -62,3 +65,48 @@ def showTheCrack (freaksheet):
                 print row
     else:
         print '[-] The specified file doesn\'t exist'
+    return
+
+# This function takes the path to a logfile and a message and writes the message to file.
+def log (logfile, message):
+    with open(logfile, 'a+') as logout:
+        logout.write(message)
+    logout.close()
+    return
+
+def corrupt (passfile, learnedlog):
+    if os.path.exists(learnedlog):
+        with open(learnedlog, 'r') as learnin:
+            for row in learnin:
+                if passfile in row:
+                    return True
+        learnin.close()
+    return False
+
+# This function takes the path to the FreakSheets directory and then deletes all of the 
+# freaksheets there and in all the terminal subdirectories if the user verifies they want
+# them deleted.
+def freakyReset (FREAKBASE, LOGBASE):
+    decision = raw_input('[!] Are you sure you want to delete the freaksheets and logs? (y/n) ')
+    if decision.lower() == 'y':
+        try:
+            os.remove(os.path.join(FREAKBASE, 'Seq.freak'))
+            os.remove(os.path.join(FREAKBASE, 'NDBD.freak'))
+        except:
+            pass
+        termDirects = ['L','S','D','W']
+        for direct in termDirects:
+            for freak in os.listdir(os.path.join(FREAKBASE, direct)):
+                if '.freak' in freak:
+                    os.remove(os.path.join(FREAKBASE, direct, freak))
+        print '[+] Freaksheets deleted'
+        for log in os.listdir(LOGBASE):
+            if '.log' in log:
+                os.remove(os.path.join(LOGBASE, log))
+        print '[+] Logs deleted'
+    elif decision.lower() != 'n':
+        print '[-] Invalid option'
+        print '[-] No freaksheets are getting deleted'
+    else:
+        print '[+] No freaksheets deleted'
+    return
