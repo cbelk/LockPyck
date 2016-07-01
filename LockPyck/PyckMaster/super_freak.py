@@ -110,7 +110,7 @@ def batch(passlist, n=1):
 # the help of updateSeq. It then begins calling the functions to update the various freak sheets.
 def main(pl, LPYCKBASE):
     print '[+] Starting the freak roundup ...'
-    start = time.clock()
+    start = time.time()
     fsheets = os.path.join(LPYCKBASE, 'FreakSheets')
     sqfreak = os.path.join(fsheets, 'Seq.freak')
     ndbdfreak = os.path.join(fsheets, 'NDBD.freak')
@@ -127,7 +127,7 @@ def main(pl, LPYCKBASE):
     for chunk in batch(passlist, 2000000):
         print '[+] Processing batch %s' % group
         print '[+] Starting the pool of workers to analyze the passwords ...'
-        batchstart = time.clock()
+        batchstart = time.time()
         pool_size = multiprocessing.cpu_count()
         pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=3,)
 #        pool_outputs = pool.map(seqCreator, passlist)
@@ -155,13 +155,13 @@ def main(pl, LPYCKBASE):
         del seq_dict
         print '[+] Updating the terminal freaks ...'
         freak_roundup.updateTerminalFreaks(fsheets, terminal_dict)
-        rtime = time.clock() - batchstart
+        rtime = time.time() - batchstart
         if rtime > 60:
             print '[+] Batch %d roundup finished in %d minute(s)' % (group, rtime / 60)
         else:
             print '[+] Batch %d roundup finished in %d seconds' % (group, rtime)
         group += 1
-    runtime = time.clock() - start
+    runtime = time.time() - start
     if runtime > 60:
         print '[+] Freak roundup finished in ' + str(runtime / 60) + ' minute(s)'
     else:
