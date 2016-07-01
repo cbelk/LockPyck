@@ -35,6 +35,7 @@ import time
 import string
 import multiprocessing
 import freak_roundup
+from itertools import islice
 
 # This function takes a sequence list and a character. If the sequence is empty,
 # the character type representation {D igit, L etter, S pecial, W hitespace} is
@@ -101,10 +102,15 @@ def seqCreator (pswd):
         i += 2
     return (seqString, ndbd_seq, seq, pswd)
 
-def batch(passlist, n=1):
-    size = len(passlist)
-    for chunk in range(0, size, n):
-        yield passlist[chunk:min(chunk + n, size)]
+# This function is used to generate batches of passwords from the specified file of size 'chunk'.
+# These batches are yielded to be processed as they are created.
+def batchGen(passfile, chunk):
+    with open(passfile) as pfile:
+        while True:
+            pswds = list(islice(pfile, chunk))
+            if not pswds:
+                break
+            yield pswds
 
 # This is the sub-driver for the freak_roundup. It creates the sequences from the passwords with
 # the help of updateSeq. It then begins calling the functions to update the various freak sheets.
@@ -117,21 +123,15 @@ def main(pl, LPYCKBASE):
     seq_dict = {'freakycount': 0}
     terminal_dict = {}
     ndbd_dict = {}
-    passlist = []
     print '[+] Reading in the password file ...'
-    with open(pl) as passfile:
-        for pswd in passfile:
-            passlist.append(pswd)
-    passfile.close()
     group = 1
-    for chunk in batch(passlist, 2000000):
+    for batch in batchGen(pl, 2000000):
         print '[+] Processing batch %s' % group
         print '[+] Starting the pool of workers to analyze the passwords ...'
         batchstart = time.time()
         pool_size = multiprocessing.cpu_count()
         pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=3,)
-#        pool_outputs = pool.map(seqCreator, passlist)
-        pool_outputs = pool.map(seqCreator, chunk)
+        pool_outputs = pool.map(seqCreator, batch)
         pool.close()
         pool.join()
         for tupl in pool_outputs:
