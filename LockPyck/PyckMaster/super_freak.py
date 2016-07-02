@@ -4,7 +4,6 @@
 #                                                                                       #
 #    LockPyck -- A Password Cracker Powered By Probabilistic Context free grammars      #
 #    Copyright (C) 2016  Christian Belk -- cbelk88@gmail.com                            #
-#                        Trey Watford   -- treyjustinwatford@gmail.com                  #
 #                                                                                       #
 #    This program is free software: you can redistribute it and/or modify               #
 #    it under the terms of the GNU General Public License as published by               #
@@ -90,7 +89,6 @@ def seqCreator (pswd):
     pswd = pswd.strip('\n')
     for ch in pswd:
         seq = updateSeq(seq, ch)
-#    terminal_dict = freak_roundup.updateTerminals(seq, pswd, terminal_dict)
     seqString = ''
     for c in seq:
         seqString += str(c)

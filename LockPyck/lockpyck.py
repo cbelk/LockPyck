@@ -4,7 +4,6 @@
 #											#
 #    LockPyck -- A Password Cracker Powered By Probabilistic Context free grammars	#
 #    Copyright (C) 2016  Christian Belk -- cbelk88@gmail.com				#
-#                        Trey Watford   -- treyjustinwatford@gmail.com                  #
 #											#
 #    This program is free software: you can redistribute it and/or modify		#
 #    it under the terms of the GNU General Public License as published by		#
@@ -42,8 +41,8 @@ def main ():
     parser.add_argument('-p', '--psswdHash', help='specify the absolute path to the file containing the hash(es) to be cracked (one hash per line)')
     parser.add_argument('-l', '--learn', help='specify the absolute path to a file containing plain text passwords to learn from (one password per line)')
     parser.add_argument('-d', '--display', help='specify the freaksheet to display (eg Seq or L6 if avalaible)')
-    parser.add_argument('-r', '--remove', action='store_true', help='remove all freaksheets')
     parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
+    parser.add_argument('-r', '--remove', action='store_true', help='remove all freaksheets')
     args = parser.parse_args()
     DRIVER = os.path.abspath(__file__)
     PYCKBASE = os.path.dirname(DRIVER)
@@ -54,8 +53,6 @@ def main ():
     CRACKEDLIST = os.path.join(LPYCKBASE, 'cracked.freak')
     sys.path.insert(1, os.path.join(PYCKBASE, 'PyckMaster'))
     sys.path.insert(1, os.path.join(PYCKBASE, 'PyckTool'))
-#    if args.psswdHash and args.learn:
-        
     if args.psswdHash:
         queue = multiprocessing.Queue()
         demon = multiprocessing.Process(name='NBDBdaemon', target=notdbd.notdbd, args=(FREAKBASE, queue))

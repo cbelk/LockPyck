@@ -4,7 +4,6 @@
 #                                                                                       #
 #    LockPyck -- A Password Cracker Powered By Probabilistic Context free grammars      #
 #    Copyright (C) 2016  Christian Belk -- cbelk88@gmail.com                            #
-#                        Trey Watford   -- treyjustinwatford@gmail.com                  #
 #                                                                                       #
 #    This program is free software: you can redistribute it and/or modify               #
 #    it under the terms of the GNU General Public License as published by               #
@@ -105,21 +104,17 @@ def main (hashfile, crackedfile, queue, FREAKBASE, verbose):
             tupls = []
             for preterm in preterms:
                 tupls.append((preterm, hashlist, FREAKBASE, verbose))
-#            print str(tupls)
             if tupls:
                 pool_outputs = pool.map(pyck.cutTheKey, tupls)
                 pool.close()
                 pool.join()
                 del tupls
-#                gc.collect()
                 for success in pool_outputs:
                     if success:
-#                        print 'success %s' % str(success)
                         hashlist = updateCrackedPasses(success, hashlist, cracked, crackedTemp)
                 del pool_outputs
                 if poisoned:
                     break
-#                gc.collect()
             else:
                 print '[-] Super_pyck: Error creating tuples'
                 print '[-] Super_pyck: preterm = %s  ||  hashlist = %s' % (str(preterm), str(hashlist))

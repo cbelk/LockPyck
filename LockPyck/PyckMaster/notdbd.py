@@ -4,7 +4,6 @@
 #                                                                                       #
 #    LockPyck -- A Password Cracker Powered By Probabilistic Context free grammars      #
 #    Copyright (C) 2016  Christian Belk -- cbelk88@gmail.com                            #
-#                        Trey Watford   -- treyjustinwatford@gmail.com                  #
 #                                                                                       #
 #    This program is free software: you can redistribute it and/or modify               #
 #    it under the terms of the GNU General Public License as published by               #
@@ -152,7 +151,6 @@ def notdbd (FREAKBASE, queue):
                 del nontermlist[-2:]
                 reslist = []
                 i = 0
-#                for nterm in nontermlist:
                 while True:
                     if i >= len(nontermlist):
                         break
@@ -163,32 +161,12 @@ def notdbd (FREAKBASE, queue):
                     reslist.append(nt)
                     del nt
                     i += 2
-#                    print nt
-#                print reslist
                 if reslist:
                     cartesianPreterms(reslist, queue, nonterm)
                 else:
                     queue.put([nonterm])
                 del reslist
                 del nonterm
-#                gc.collect()
-#                permlist = list(itertools.product(*reslist))
-#                print permlist
-#                del reslist
-#                gc.collect()
-#                pretermlist = []
-#                for tup in permlist:
-#                    termpart = ''
-#                    for term in tup:
-#                        termpart += str(term)
-#                    del tup
-#                    pretermlist.append([termpart, nonterm])
-#                del permlist
-#                gc.collect()
-#                print pretermlist
-#                addToQueue(pretermlist, queue)
-#                del pretermlist
-#                gc.collect()
     print '[+] Notdbd: Generated all preterms'
     queue.put('kcyPkcoL')
     return
