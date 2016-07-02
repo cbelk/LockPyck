@@ -146,7 +146,7 @@ def notdbd (FREAKBASE, queue):
                     break
                 ram = psutil.virtual_memory()
                 swp = psutil.swap_memory()
-            if seq != 'freakycount':
+            if seq != 'freakyc0unt':
                 nontermlist = ndbd_dict[seq]
                 nonterm = '%s%s' % (nontermlist[len(nontermlist) - 2], nontermlist[len(nontermlist) - 1])
                 del nontermlist[-2:]
@@ -159,7 +159,7 @@ def notdbd (FREAKBASE, queue):
                     sorted_freak = freak_roundup.sortaFreaky(os.path.join(FREAKBASE, nontermlist[i], '%s%s.freak' % (nontermlist[i], nontermlist[i+1])))
                     nt = [freak[0] for freak in sorted_freak]
                     del sorted_freak
-                    nt.remove('freakycount')
+                    nt.remove('freakyc0unt')
                     reslist.append(nt)
                     del nt
                     i += 2

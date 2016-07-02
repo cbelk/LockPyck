@@ -106,7 +106,7 @@ def freakyCreator (freaky_tuple):
     directFreak = freaky_tuple[2]
     verbose = freaky_tuple[3]
     freakf = os.path.join(directFreak, freakfile[:1], freakfile + '.freak')
-    freaky_dict = {'freakycount': len(terminalSeq)}
+    freaky_dict = {'freakyc0unt': len(terminalSeq)}
     while len(terminalSeq) > 0:
         seq = terminalSeq[0]
         if seq in freaky_dict:

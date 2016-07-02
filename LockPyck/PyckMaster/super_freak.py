@@ -115,7 +115,7 @@ def main(pl, LPYCKBASE, verbose):
     fsheets = os.path.join(LPYCKBASE, 'FreakSheets')
     sqfreak = os.path.join(fsheets, 'Seq.freak')
     ndbdfreak = os.path.join(fsheets, 'NDBD.freak')
-    seq_dict = {'freakycount': 0}
+    seq_dict = {'freakyc0unt': 0}
     terminal_dict = {}
     ndbd_dict = {}
     group = 1
@@ -138,7 +138,7 @@ def main(pl, LPYCKBASE, verbose):
                 seq_dict[seqString] += 1
             else:
                 seq_dict[seqString] = 1
-            seq_dict['freakycount'] += 1
+            seq_dict['freakyc0unt'] += 1
         del pool_outputs
         print '[+] Starting the freak update ...'
         freak_roundup.specialFreakyUpdate(ndbdfreak, ndbd_dict, verbose)
