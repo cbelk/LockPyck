@@ -85,8 +85,8 @@ def crackedWriter (crackedfile, cracked):
 
 # This is the sub-driver for the pycking process. It keeps looping as long as there are hashes to be
 # cracked, getting the preterms from the global list and starting a pool of pyck workers to do some cracking.
-def main (hashfile, crackedfile, queue, FREAKBASE):
-    print '[+] Super_pick: Reading hashes from %s' % hashfile
+def main (hashfile, crackedfile, queue, FREAKBASE, verbose):
+    print '[+] Super_pick: Reading hashes from %s ...' % hashfile
     hashlist = getThoseHashes(hashfile)
     cracked = {}
     THRESHOLD = 80
@@ -104,7 +104,7 @@ def main (hashfile, crackedfile, queue, FREAKBASE):
             pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=2,)
             tupls = []
             for preterm in preterms:
-                tupls.append((preterm, hashlist, FREAKBASE))
+                tupls.append((preterm, hashlist, FREAKBASE, verbose))
 #            print str(tupls)
             if tupls:
                 pool_outputs = pool.map(pyck.cutTheKey, tupls)
@@ -128,7 +128,7 @@ def main (hashfile, crackedfile, queue, FREAKBASE):
         else:
             if poisoned:
                 break
-            print '[!] Super_pyck: Taking a break since no preterms available right now ...'
+            print '[!] Super_pyck: Taking a break since no preterms are available right now ...'
             time.sleep(5)
     crackedWriter(crackedfile, cracked)
     return
