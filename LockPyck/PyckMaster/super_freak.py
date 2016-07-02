@@ -95,12 +95,7 @@ def seqCreator (pswd):
     for c in seq:
         seqString += str(c)
     size = len(seq)
-    i = 0
-    ndbd_seq = []
-    while i < size:
-        ndbd_seq.append('%s%d' % (seq[i], seq[i+1]))
-        i += 2
-    return (seqString, ndbd_seq, seq, pswd)
+    return (seqString, seq, pswd)
 
 # This function is used to generate batches of passwords from the specified file of size 'chunk'.
 # These batches are yielded to be processed as they are created.
@@ -135,11 +130,10 @@ def main(pl, LPYCKBASE, verbose):
         pool.join()
         for tupl in pool_outputs:
             seqString = tupl[0]
-            ndbd_seq = tupl[1]
-            seq = tupl[2]
-            pswd = tupl[3]
+            seq = tupl[1]
+            pswd = tupl[2]
             terminal_dict = freak_roundup.updateTerminals(seq, pswd, terminal_dict)
-            ndbd_dict[seqString] = ndbd_seq
+            ndbd_dict[seqString] = seq
             if seqString in seq_dict:
                 seq_dict[seqString] += 1
             else:
@@ -147,12 +141,8 @@ def main(pl, LPYCKBASE, verbose):
             seq_dict['freakycount'] += 1
         del pool_outputs
         print '[+] Starting the freak update ...'
-        if verbose:
-            print '[+] Updating NDBD.freak ...'
         freak_roundup.specialFreakyUpdate(ndbdfreak, ndbd_dict, verbose)
         del ndbd_dict
-        if verbose:
-            print '[+] Updating Seq.freak ...'
         freak_roundup.freakyUpdate(sqfreak, seq_dict, verbose)
         del seq_dict
         if verbose:

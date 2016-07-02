@@ -41,14 +41,21 @@ def cutTheKey (tup):
     FREAKBASE = tup[2]
     verbose = tup[3]
 #    print hashlist
-    nonterm = preterminal[1]
+    if len(preterminal) == 1:
+        nonterm = preterminal[0]
+    else:
+        nonterm = preterminal[1]
     freaksheet = os.path.join(FREAKBASE, nonterm[0], '%s.freak' % nonterm)
+    print freaksheet
     freaks = freak_roundup.sortaFreaky(freaksheet)
     success = []
     for freak in freaks:
         if freak[0] != 'freakycount':
 #            print freak[0]
-            passguess = '%s%s' % (preterminal[0], freak[0])
+            if len(preterminal) == 1:
+                passguess = freak[0]
+            else:
+                passguess = '%s%s' % (preterminal[0], freak[0])
             if verbose:
                 print '[+] Pyck: Trying %s' % passguess
             hashed = hashlib.md5()

@@ -148,21 +148,27 @@ def notdbd (FREAKBASE, queue):
                 swp = psutil.swap_memory()
             if seq != 'freakycount':
                 nontermlist = ndbd_dict[seq]
-                nonterm = nontermlist[len(nontermlist) - 1]
-                del nontermlist[-1]
+                nonterm = '%s%s' % (nontermlist[len(nontermlist) - 2], nontermlist[len(nontermlist) - 1])
+                del nontermlist[-2:]
                 reslist = []
                 i = 0
-                for nterm in nontermlist:
-                    sorted_freak = freak_roundup.sortaFreaky(os.path.join(FREAKBASE, nterm[0], '%s.freak' % nterm))
+#                for nterm in nontermlist:
+                while True:
+                    if i >= len(nontermlist):
+                        break
+                    sorted_freak = freak_roundup.sortaFreaky(os.path.join(FREAKBASE, nontermlist[i], '%s%s.freak' % (nontermlist[i], nontermlist[i+1])))
                     nt = [freak[0] for freak in sorted_freak]
                     del sorted_freak
                     nt.remove('freakycount')
                     reslist.append(nt)
                     del nt
-                    i += 1
+                    i += 2
 #                    print nt
 #                print reslist
-                cartesianPreterms(reslist, queue, nonterm)
+                if reslist:
+                    cartesianPreterms(reslist, queue, nonterm)
+                else:
+                    queue.put([nonterm])
                 del reslist
                 del nonterm
 #                gc.collect()

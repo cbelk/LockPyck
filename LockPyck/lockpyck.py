@@ -63,7 +63,7 @@ def main ():
         print '[+] Starting the NotDBD daemon now ...'
         demon.start()
         print '[+] Starting up super_pyck ...'
-        super_pyck.main(str(args.psswdHash), CRACKEDLIST, queue, FREAKBASE, verbose)
+        super_pyck.main(str(args.psswdHash), CRACKEDLIST, queue, FREAKBASE, args.verbose)
     elif args.learn:
         if utility.corrupt(args.learn, LEARNED):
             print '[!] The provided password list has been analyzed before.'
