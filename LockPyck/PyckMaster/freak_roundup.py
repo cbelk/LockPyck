@@ -44,8 +44,9 @@ except:
 # adding the freaks (value) for each sequence or terminal (key). The resulting dict
 # is pickled and dumped back to file. If the file doesn't exist the dict is pickled
 # and dumped to file.
-def freakyUpdate (freaksheet, freaky_dict):
-    print '[+] FreakyUpdate: Updating %s' % freaksheet
+def freakyUpdate (freaksheet, freaky_dict, verbose):
+    if verbose:
+        print '[+] FreakyUpdate: Updating %s' % freaksheet
     if os.path.isfile(freaksheet) and os.stat(freaksheet).st_size > 0:
         with open(freaksheet, 'rb') as freakin:
             stale_pickle = pickle.load(freakin)
@@ -63,8 +64,9 @@ def freakyUpdate (freaksheet, freaky_dict):
 # This function takes the path to the NDBD.freak sheet and the ndbd_dict. If the
 # file exists, its contents are un-pickled, and merged with ndbd_dict. It's then
 # pickled back to file. Else, it's just pickled to file.
-def specialFreakyUpdate (freaksheet, ndbd_dict):
-    print '[+] FreakyUpdate: Updating %s' % freaksheet
+def specialFreakyUpdate (freaksheet, ndbd_dict, verbose):
+    if verbose:
+        print '[+] FreakyUpdate: Updating %s' % freaksheet
     if os.path.isfile(freaksheet) and os.stat(freaksheet).st_size > 0:
         with open(freaksheet, 'rb') as freakin:
             stale_pickle = pickle.load(freakin)
@@ -82,12 +84,12 @@ def specialFreakyUpdate (freaksheet, ndbd_dict):
 # This function takes the path to the FreakSheets directory and a terminal dict.
 # It then creates a list of jobs (tuples) which it passes to a pool of workers running 
 # the freakyCreator function.
-def updateTerminalFreaks (directFreak, terminal_dict):
+def updateTerminalFreaks (directFreak, terminal_dict, verbose):
     freaky_jobs = []
     pool_size = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=3,)
     for freakfile, terminalSeq in terminal_dict.iteritems():
-        freaky_jobs.append((freakfile, terminalSeq, directFreak))
+        freaky_jobs.append((freakfile, terminalSeq, directFreak, verbose))
     pool.map(freakyCreator, freaky_jobs)
     pool.close()
     pool.join()
@@ -102,6 +104,7 @@ def freakyCreator (freaky_tuple):
 #    print '[!] freakyCreator: working on %s' % freakfile
     terminalSeq = freaky_tuple[1]
     directFreak = freaky_tuple[2]
+    verbose = freaky_tuple[3]
     freakf = os.path.join(directFreak, freakfile[:1], freakfile + '.freak')
     freaky_dict = {'freakycount': len(terminalSeq)}
     while len(terminalSeq) > 0:
@@ -111,7 +114,7 @@ def freakyCreator (freaky_tuple):
         else:
             freaky_dict[seq] = 1
         terminalSeq.remove(seq)
-    freakyUpdate(freakf, freaky_dict,)
+    freakyUpdate(freakf, freaky_dict, verbose)
     return
 
 # This function takes a sequence, its corresponding password, and the terminal dict.

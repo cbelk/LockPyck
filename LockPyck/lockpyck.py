@@ -43,6 +43,7 @@ def main ():
     parser.add_argument('-l', '--learn', help='specify the absolute path to a file containing plain text passwords to learn from (one password per line)')
     parser.add_argument('-d', '--display', help='specify the freaksheet to display (eg Seq or L6 if avalaible)')
     parser.add_argument('-r', '--remove', action='store_true', help='remove all freaksheets')
+    parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
     args = parser.parse_args()
     DRIVER = os.path.abspath(__file__)
     PYCKBASE = os.path.dirname(DRIVER)
@@ -69,10 +70,10 @@ def main ():
             print '[!] Running it again can cause skewed data.'
             decision = raw_input('[!] Would you like to run it anyway? (y/n) ')
             if decision.lower() == 'y':
-                super_freak.main(args.learn, LPYCKBASE)
+                super_freak.main(args.learn, LPYCKBASE, args.verbose)
                 utility.log(LEARNED, '%s\n' % args.learn)
         else:
-            super_freak.main(args.learn, LPYCKBASE)
+            super_freak.main(args.learn, LPYCKBASE, args.verbose)
             utility.log(LEARNED, '%s\n' % args.learn)
     elif args.display:
         if args.display == 'Seq':

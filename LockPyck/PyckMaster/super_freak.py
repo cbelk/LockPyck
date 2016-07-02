@@ -114,7 +114,7 @@ def batchGen(passfile, chunk):
 
 # This is the sub-driver for the freak_roundup. It creates the sequences from the passwords with
 # the help of updateSeq. It then begins calling the functions to update the various freak sheets.
-def main(pl, LPYCKBASE):
+def main(pl, LPYCKBASE, verbose):
     print '[+] Starting the freak roundup ...'
     start = time.time()
     fsheets = os.path.join(LPYCKBASE, 'FreakSheets')
@@ -123,7 +123,6 @@ def main(pl, LPYCKBASE):
     seq_dict = {'freakycount': 0}
     terminal_dict = {}
     ndbd_dict = {}
-    print '[+] Reading in the password file ...'
     group = 1
     for batch in batchGen(pl, 2000000):
         print '[+] Processing batch %s' % group
@@ -147,14 +146,18 @@ def main(pl, LPYCKBASE):
                 seq_dict[seqString] = 1
             seq_dict['freakycount'] += 1
         del pool_outputs
-        print '[+] Updating NDBD.freak ...'
-        freak_roundup.specialFreakyUpdate(ndbdfreak, ndbd_dict)
+        print '[+] Starting the freak update ...'
+        if verbose:
+            print '[+] Updating NDBD.freak ...'
+        freak_roundup.specialFreakyUpdate(ndbdfreak, ndbd_dict, verbose)
         del ndbd_dict
-        print '[+] Updating Seq.freak ...'
-        freak_roundup.freakyUpdate(sqfreak, seq_dict)
+        if verbose:
+            print '[+] Updating Seq.freak ...'
+        freak_roundup.freakyUpdate(sqfreak, seq_dict, verbose)
         del seq_dict
-        print '[+] Updating the terminal freaks ...'
-        freak_roundup.updateTerminalFreaks(fsheets, terminal_dict)
+        if verbose:
+            print '[+] Updating the terminal freaks ...'
+        freak_roundup.updateTerminalFreaks(fsheets, terminal_dict, verbose)
         rtime = time.time() - batchstart
         if rtime > 60:
             print '[+] Batch %d roundup finished in %d minute(s)' % (group, rtime / 60)
