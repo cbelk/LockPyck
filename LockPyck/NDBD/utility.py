@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 
 #########################################################################################
 #                                                                                       #
@@ -20,43 +20,37 @@
 #                                                                                       #
 #########################################################################################
 
-# This file contains the function that serves as the workers in the pool for the cracking process.
+# This file contains the utilities used by notdbd, cartersianPreterms, as well as outside modules.
 #
 # Author: Christian Belk
 
-import hashlib
-import os
-from FreakMaster import freak_roundup
+import time
+try:
+    import psutil
+except:
+    print '[-] The psutil module is required.\n[-] You can use a package manager to install it (e.g. pip install psutil).'
+    sys.exit()
 
-# cutTheKey is used to perform the actual cracking. After determining the non-terminal, it
-# retrieves the sorted content of the associated freaksheet and begins plugging them into
-# the preterminal to form a password guess which is then hashed and compared to the hashlist.
-# Successful cracks are added to a list which is returned.
-def cutTheKey (tup):
-    preterminal = tup[0]
-    hashlist = tup[1]
-    FREAKBASE = tup[2]
-    verbose = tup[3]
-    if len(preterminal) == 1:
-        nonterm = preterminal[0]
-    else:
-        nonterm = preterminal[1]
-    freaksheet = os.path.join(FREAKBASE, nonterm[0], '%s.freak' % nonterm)
-    freaks = freak_roundup.sortaFreaky(freaksheet)
-    success = []
-    for freak in freaks:
-        if freak[0] != 'freakyc0unt':
-            if len(preterminal) == 1:
-                passguess = freak[0]
-            else:
-                passguess = '%s%s' % (preterminal[0], freak[0])
-            if verbose:
-                print '[+] Pyck: Trying %s' % passguess
-            hashed = hashlib.md5()
-            hashed.update(passguess)
-            hashstring = hashed.hexdigest()
-            if hashstring in hashlist:
-                print '[+] Pyck: Success %s ==> %s' % (hashstring, passguess)
-                success.append([hashstring, passguess])
-    del freaks
-    return success
+# courtesyCheck is used to throttle the program if memory usage gets too high.
+def courtesyCheck(THRESHOLD):
+    ram = psutil.virtual_memory()
+    swp = psutil.swap_memory()
+    while ram.percent > THRESHOLD:
+        if swp.total == 0:
+            print '[!] Notdbd: Taking a break since memory usage is high ...'
+            time.sleep(30)
+        elif swp.percent > THRESHOLD:
+            print '[!] Notdbd: Taking a break since memory usage is high ...'
+            time.sleep(30)
+        else:
+            break
+        ram = psutil.virtual_memory()
+        swp = psutil.swap_memory()
+    return
+
+# dumpQueue empties the contents of the queue into a list which is then returned.
+def dumpQueue (queue):
+    preterms = []
+    while not queue.empty():
+        preterms.append(queue.get())
+    return preterms

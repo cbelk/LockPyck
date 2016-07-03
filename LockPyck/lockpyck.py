@@ -25,13 +25,13 @@
 #
 # Author: Christian Belk
 
-import os
 import argparse
-import sys
 import multiprocessing
-from PyckMaster import super_freak
-from PyckMaster import utility
-from PyckMaster import notdbd
+import os
+import sys
+from FreakMaster import super_freak
+from FreakMaster import utility
+from NDBD import notdbd
 from PyckTool import super_pyck
 
 # This is the main driver for LockPyck. It simply takes the command line arguments and calls
@@ -60,17 +60,17 @@ def main ():
         print '[+] Starting the NotDBD daemon now ...'
         demon.start()
         print '[+] Starting up super_pyck ...'
-        super_pyck.main(str(args.psswdHash), CRACKEDLIST, queue, FREAKBASE, args.verbose)
+        super_pyck.drive(str(args.psswdHash), CRACKEDLIST, queue, FREAKBASE, args.verbose)
     elif args.learn:
         if utility.corrupt(args.learn, LEARNED):
             print '[!] The provided password list has been analyzed before.'
             print '[!] Running it again can cause skewed data.'
             decision = raw_input('[!] Would you like to run it anyway? (y/n) ')
             if decision.lower() == 'y':
-                super_freak.main(args.learn, LPYCKBASE, args.verbose)
+                super_freak.drive(args.learn, LPYCKBASE, args.verbose)
                 utility.log(LEARNED, '%s\n' % args.learn)
         else:
-            super_freak.main(args.learn, LPYCKBASE, args.verbose)
+            super_freak.drive(args.learn, LPYCKBASE, args.verbose)
             utility.log(LEARNED, '%s\n' % args.learn)
     elif args.display:
         if args.display == 'Seq':

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 
 #########################################################################################
 #                                                                                       #
@@ -20,43 +20,37 @@
 #                                                                                       #
 #########################################################################################
 
-# This file contains the function that serves as the workers in the pool for the cracking process.
+# This file contains the utility functions used in PyckTool.
 #
 # Author: Christian Belk
 
-import hashlib
+import datetime
 import os
-from FreakMaster import freak_roundup
 
-# cutTheKey is used to perform the actual cracking. After determining the non-terminal, it
-# retrieves the sorted content of the associated freaksheet and begins plugging them into
-# the preterminal to form a password guess which is then hashed and compared to the hashlist.
-# Successful cracks are added to a list which is returned.
-def cutTheKey (tup):
-    preterminal = tup[0]
-    hashlist = tup[1]
-    FREAKBASE = tup[2]
-    verbose = tup[3]
-    if len(preterminal) == 1:
-        nonterm = preterminal[0]
+# crackedWriter takes the path to the file where the successfuly cracked passwords (or lack thereof in
+# the worse case) are stored, and writes the contents of cracked there if cracked is not empty, else
+# it prints the failure message.
+def crackedWriter (crackedfile, cracked):
+    with open(crackedfile, 'a+') as crackedout:
+        crackedout.write('LockPyck run on %s\n' % datetime.datetime.now())
+        if cracked:
+            for hashd, crack in cracked.iteritems():
+                for cc in crack:
+                    crackedout.write('[+] Hashed: %s  ||  Password: %s\n' % (hashd, cc))
+        else:
+            crackedout.write('[-] No hashes were cracked on this run.\n')
+        crackedout.write('\n')
+    return
+
+# getThoseHashes takes the path to the file containing the hashlist, reads the contents into
+# the hashlist, and returns it.
+def getThoseHashes (hashfile):
+    hashlist = []
+    if os.path.isfile(hashfile):
+        with open(hashfile, 'r') as hashin:
+            for hsh in hashin:
+                hashlist.append(hsh.strip('\n'))
+        hashin.close()
     else:
-        nonterm = preterminal[1]
-    freaksheet = os.path.join(FREAKBASE, nonterm[0], '%s.freak' % nonterm)
-    freaks = freak_roundup.sortaFreaky(freaksheet)
-    success = []
-    for freak in freaks:
-        if freak[0] != 'freakyc0unt':
-            if len(preterminal) == 1:
-                passguess = freak[0]
-            else:
-                passguess = '%s%s' % (preterminal[0], freak[0])
-            if verbose:
-                print '[+] Pyck: Trying %s' % passguess
-            hashed = hashlib.md5()
-            hashed.update(passguess)
-            hashstring = hashed.hexdigest()
-            if hashstring in hashlist:
-                print '[+] Pyck: Success %s ==> %s' % (hashstring, passguess)
-                success.append([hashstring, passguess])
-    del freaks
-    return success
+        print '[-] Super_pyck: %s doesn\'t exist.'
+    return hashlist

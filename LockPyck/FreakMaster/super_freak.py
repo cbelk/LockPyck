@@ -20,94 +20,24 @@
 #                                                                                       #
 #########################################################################################
 
-# This file contains the sub-driver for the freak_roundup and the function used 
-# to create the sequence. The dicts and such:
+# This file contains the sub-driver for the freak_roundup.
+# The data structures:
 # terminal_dict => key = string (representing non-terminal); value = list of terminals for that non-terminal
 # seq_dict      => key = string (representing sequence); value = int (associated freak)
-# ndbd_dict     => key = string (representing sequence); value = list version of sequence needed by notdbd
-# sequ          => list used to hold individual parts of non-terminals in the sequence. eg ['L', 8, 'D', 3]
+# ndbd_dict     => key = string (representing sequence); value = list version of sequence
 #
 # Author: Christian Belk
 
-import os
-import time
-import string
-import multiprocessing
 import freak_roundup
-from itertools import islice
-
-# This function takes a sequence list and a character. If the sequence is empty,
-# the character type representation {D igit, L etter, S pecial, W hitespace} is
-# added to the list with a count of 1. Otherwise, the previously added char type
-# rep is checked to see if it matches the current type. If it does it's count is
-# incremented, else it's type rep is added to the list with a count of 1.
-def updateSeq (sequ, char):
-    if char in string.letters:
-        if len(sequ) > 0:
-            if sequ[len(sequ) - 2] == 'L':
-                sequ[len(sequ) - 1] += 1
-            else:
-                sequ.append('L')
-                sequ.append(1)
-        else:
-            sequ.append('L')
-            sequ.append(1)
-    elif char in string.digits:
-        if len(sequ) > 0:
-            if sequ[len(sequ) - 2] == 'D':
-                sequ[len(sequ) - 1] += 1
-            else:
-                sequ.append('D')
-                sequ.append(1)
-        else:
-            sequ.append('D')
-            sequ.append(1)
-    elif char in string.punctuation:
-        if len(sequ) > 0:
-            if sequ[len(sequ) - 2] == 'S':
-                sequ[len(sequ) - 1] += 1
-            else:
-                sequ.append('S')
-                sequ.append(1)
-        else:
-            sequ.append('S')
-            sequ.append(1)
-    elif char in string.whitespace:
-        if len(sequ) > 0:
-            if sequ[len(sequ) - 2] == 'W':
-                sequ[len(sequ) - 1] += 1
-            else:
-                sequ.append('W')
-                sequ.append(1)
-        else:
-            sequ.append('W')
-            sequ.append(1)
-    return sequ
-
-def seqCreator (pswd):
-    seq = []
-    pswd = pswd.strip('\n')
-    for ch in pswd:
-        seq = updateSeq(seq, ch)
-    seqString = ''
-    for c in seq:
-        seqString += str(c)
-    size = len(seq)
-    return (seqString, seq, pswd)
-
-# This function is used to generate batches of passwords from the specified file of size 'chunk'.
-# These batches are yielded to be processed as they are created.
-def batchGen(passfile, chunk):
-    with open(passfile) as pfile:
-        while True:
-            pswds = list(islice(pfile, chunk))
-            if not pswds:
-                break
-            yield pswds
+import multiprocessing
+import os
+import seq_help
+import time
+import utility
 
 # This is the sub-driver for the freak_roundup. It creates the sequences from the passwords with
 # the help of updateSeq. It then begins calling the functions to update the various freak sheets.
-def main(pl, LPYCKBASE, verbose):
+def drive(pl, LPYCKBASE, verbose):
     print '[+] Starting the freak roundup ...'
     start = time.time()
     fsheets = os.path.join(LPYCKBASE, 'FreakSheets')
@@ -117,13 +47,13 @@ def main(pl, LPYCKBASE, verbose):
     terminal_dict = {}
     ndbd_dict = {}
     group = 1
-    for batch in batchGen(pl, 2000000):
+    for batch in utility.batchGen(pl, 2000000):
         print '[+] Processing batch %s' % group
         print '[+] Starting the pool of workers to analyze the passwords ...'
         batchstart = time.time()
         pool_size = multiprocessing.cpu_count()
         pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=3,)
-        pool_outputs = pool.map(seqCreator, batch)
+        pool_outputs = pool.map(seq_help.seqCreator, batch)
         pool.close()
         pool.join()
         for tupl in pool_outputs:
@@ -139,7 +69,7 @@ def main(pl, LPYCKBASE, verbose):
             seq_dict['freakyc0unt'] += 1
         del pool_outputs
         print '[+] Starting the freak update ...'
-        freak_roundup.specialFreakyUpdate(ndbdfreak, ndbd_dict, verbose)
+        freak_roundup.freakyUpdate(ndbdfreak, ndbd_dict, verbose)
         del ndbd_dict
         freak_roundup.freakyUpdate(sqfreak, seq_dict, verbose)
         del seq_dict
@@ -158,6 +88,3 @@ def main(pl, LPYCKBASE, verbose):
     else:
         print '[+] Freak roundup finished in ' + str(runtime) + ' seconds'
     return
-
-if __name__ == "__main__":
-	main()

@@ -20,59 +20,29 @@
 #                                                                                       #
 #########################################################################################
 
-# This file contains the utilities for LockPyck, such as various display functions, a logger,
-# and a reset function.
+# This file contains the utilities for LockPyck.
 #
 # Author: Christian Belk
 
+import freak_roundup
 import os
 import pickle
-import freak_roundup
+from itertools import islice
 
-# This function takes the path to a freaksheet. It then unpickles it and displays it's contents
-# if it exists.
-def showTheFreak (freaksheet):
-    if os.path.isfile(freaksheet):
-        freaks = freak_roundup.sortaFreaky(freaksheet)
-        print '[+] UnPickled Contents of %s:' % freaksheet
-        for freak in freaks:
-            print '%s, %d' % (freak[0], freak[1])
-        del freaks
-    else:
-        print '[-] The specified file doesn\'t exist'
-
-# This function takes the path to the NDBD.freak, unpickles it, and displays it's contents if
-# it exist.
-def showTheSpecialFreak (freaksheet):
-    if os.path.isfile(freaksheet):
-        with open(freaksheet, 'rb') as freakin:
-            stale_pickle = pickle.load(freakin)
-        freakin.close()
-        print '[+] UnPickled Contents of %s:' % freaksheet
-        for seqstring, seqlist in stale_pickle.iteritems():
-            print '%s ==> %s' % (seqstring, str(seqlist))
-        del stale_pickle
-    else:
-        print '[-] The specified file doesn\'t exist'
+# batchGen is used to generate batches of passwords from the specified file of size 'chunk'.
+# These batches are yielded to be processed as they are created.
+def batchGen(passfile, chunk):
+    with open(passfile) as pfile:
+        while True:
+            pswds = list(islice(pfile, chunk))
+            if not pswds:
+                break
+            yield pswds
+    pfile.close()
     return
 
-# This function takes the path to the crack freaksheet and displays it's contents if it exists.
-def showTheCrack (freaksheet):
-    if os.path.isfile(freaksheet):
-        with open(freaksheet, 'r') as crack:
-            for row in crack:
-                print row
-    else:
-        print '[-] The specified file doesn\'t exist'
-    return
-
-# This function takes the path to a logfile and a message and writes the message to file.
-def log (logfile, message):
-    with open(logfile, 'a+') as logout:
-        logout.write(message)
-    logout.close()
-    return
-
+# corrupt is used to check if the password file that was passed to the leaning phase has
+# been analyzed before, returning true if it has and false otherwise.
 def corrupt (passfile, learnedlog):
     if os.path.exists(learnedlog):
         with open(learnedlog, 'r') as learnin:
@@ -82,7 +52,7 @@ def corrupt (passfile, learnedlog):
         learnin.close()
     return False
 
-# This function takes the path to the FreakSheets directory and then deletes all of the 
+# freakyReset takes the path to the FreakSheets directory and then deletes all of the 
 # freaksheets there and in all the terminal subdirectories if the user verifies they want
 # them deleted.
 def freakyReset (FREAKBASE, LOGBASE):
@@ -108,4 +78,49 @@ def freakyReset (FREAKBASE, LOGBASE):
         print '[-] No freaksheets are getting deleted'
     else:
         print '[+] No freaksheets deleted'
+    return
+
+# log takes the path to a logfile and a message and writes the message to file.
+def log (logfile, message):
+    with open(logfile, 'a+') as logout:
+        logout.write(message)
+    logout.close()
+    return
+
+# showTheCrack takes the path to the crack freaksheet and displays it's contents if it exists.
+def showTheCrack (freaksheet):
+    if os.path.isfile(freaksheet):
+        with open(freaksheet, 'r') as crack:
+            for row in crack:
+                print row
+    else:
+        print '[-] The specified file doesn\'t exist'
+    return
+
+# showTheFreak takes the path to a freaksheet. It then unpickles it and displays it's contents
+# if it exists.
+def showTheFreak (freaksheet):
+    if os.path.isfile(freaksheet):
+        freaks = freak_roundup.sortaFreaky(freaksheet)
+        print '[+] UnPickled Contents of %s:' % freaksheet
+        for freak in freaks:
+            print '%s, %d' % (freak[0], freak[1])
+        del freaks
+    else:
+        print '[-] The specified file doesn\'t exist'
+    return
+
+# showTheSpecialFreak takes the path to the NDBD.freak, unpickles it, and displays it's contents if
+# it exist.
+def showTheSpecialFreak (freaksheet):
+    if os.path.isfile(freaksheet):
+        with open(freaksheet, 'rb') as freakin:
+            stale_pickle = pickle.load(freakin)
+        freakin.close()
+        print '[+] UnPickled Contents of %s:' % freaksheet
+        for seqstring, seqlist in stale_pickle.iteritems():
+            print '%s ==> %s' % (seqstring, str(seqlist))
+        del stale_pickle
+    else:
+        print '[-] The specified file doesn\'t exist'
     return
