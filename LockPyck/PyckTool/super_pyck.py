@@ -21,30 +21,25 @@
 #########################################################################################
 
 # This file contains the sub-driver for the pycking process.
-# The data structures:
-# cracked => key = hash; value = list of plaintext(s) that hashed to the key hash
 #
 # Author: Christian Belk
 
 import multiprocessing
 import pyck
-import time
 import qutility
-import utility as util
-from NDBD import utility as nutil
+import time
+import utility
 
-# This is the sub-driver for the pycking process. It keeps looping as long as there are hashes to be
-# cracked, getting the preterms from the global list and starting a pool of pyck workers to do some cracking.
-def drive (hashfile, crackedfile, FREAKBASE, queue, suc_queue, poison_queue, poison_pill, pill_count, verbose):
-    print '[+] Super_pick: Reading hashes from %s ...' % hashfile
-    hashlist = util.getThoseHashes(hashfile)
-    cracked = {}
-    THRESHOLD = 80
-    crackedTemp = '%s~' % crackedfile
+# This is the sub-driver for the pycking process. It retrieves the preterms from the queue and starts a pool of
+# pycks to process them. Any successes returned from the pycks gets added to the suc_queue to be consumed by 
+# the hash_man daemon. It terminates by receiving a poison pill in either the poison_queue (meaning hash_man
+# poisoned it because all hashes are gone) or the queue (meaning notdbd poisoned it because all of the preterms
+# are gone in which case it poisons the poison_queue).
+def drive(hashlist, crackedfile, FREAKBASE, queue, suc_queue, poison_queue, poison_pill, pill_count, verbose):
     poisoned = False
     print '[+] Super_Pyck: Starting the pycking process ...'
     while not qutility.poisoned(poison_queue):
-        preterms = nutil.dumpQueue(queue)
+        preterms = qutility.dumpQueue(queue)
         if poison_pill in preterms:
             print '[+] Super_Pyck: Recieved poison pill from NotDBD!'
             print '[+] Super_Pyck: Processing any remaining preterms ...'
@@ -82,22 +77,3 @@ def drive (hashfile, crackedfile, FREAKBASE, queue, suc_queue, poison_queue, poi
             break
     print '[+] Super_Pyck: Terminating ...'
     return
-
-# updateCrackedPasses takes a list of successful cracks (plaintext) and the hashlist. It then adds the hashed
-# passwords as the key to the cracked dict and the plaintext into the list (value). Note: list is used
-# since collision is possible with random user created passwords (though very, very low probability).
-# **Might need to take out the code that removes the hash from hashlist to allow for collision***
-def updateCrackedPasses (success, hashlist, cracked, crackedTemp):
-    with open(crackedTemp, 'a+') as crackedout:
-        for suc in success:
-            crackedout.write('[+] %s  ==>  %s\n' % (suc[0], suc[1]))
-            if suc[0] in cracked:
-                cracked[suc[0]].append(suc[1])
-            else:
-                cracked[suc[0]] = [suc[1]]
-                c = hashlist.count(suc[0])
-                while c > 0:
-                    hashlist.remove(suc[0])
-                    c -= 1
-    crackedout.close()
-    return hashlist

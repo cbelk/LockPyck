@@ -31,7 +31,7 @@ import string
 # seqCreator is used to generate the sequence of a password with the help of the updateSeq
 # function. This sequence list is then made into a strng, and both are returned in a tuple
 # along with the password used to create the sequence.
-def seqCreator (pswd):
+def seqCreator(pswd):
     seq = []
     pswd = pswd.strip('\n')
     for ch in pswd:
@@ -47,7 +47,7 @@ def seqCreator (pswd):
 # added to the list with a count of 1. Otherwise, the previously added char type
 # rep is checked to see if it matches the current type. If it does it's count is
 # incremented, else it's type rep is added to the list with a count of 1.
-def updateSeq (sequ, char):
+def updateSeq(sequ, char):
     if char in string.letters:
         if len(sequ) > 0:
             if sequ[len(sequ) - 2] == 'L':

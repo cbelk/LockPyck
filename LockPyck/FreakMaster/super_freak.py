@@ -33,7 +33,7 @@ import multiprocessing
 import os
 import seq_help
 import time
-import utility
+import futility
 
 # This is the sub-driver for the freak_roundup. It creates the sequences from the passwords with
 # the help of updateSeq. It then begins calling the functions to update the various freak sheets.
@@ -47,7 +47,7 @@ def drive(pl, LPYCKBASE, verbose):
     terminal_dict = {}
     ndbd_dict = {}
     group = 1
-    for batch in utility.batchGen(pl, 2000000):
+    for batch in futility.batchGen(pl, 2000000):
         print '[+] Processing batch %s' % group
         print '[+] Starting the pool of workers to analyze the passwords ...'
         batchstart = time.time()

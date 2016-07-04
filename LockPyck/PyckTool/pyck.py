@@ -32,7 +32,7 @@ from FreakMaster import freak_roundup
 # retrieves the sorted content of the associated freaksheet and begins plugging them into
 # the preterminal to form a password guess which is then hashed and compared to the hashlist.
 # Successful cracks are added to a list which is returned.
-def cutTheKey (tup):
+def cutTheKey(tup):
     preterminal = tup[0]
     hashlist = tup[1]
     FREAKBASE = tup[2]

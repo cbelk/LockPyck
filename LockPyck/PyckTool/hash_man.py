@@ -20,37 +20,46 @@
 #                                                                                       #
 #########################################################################################
 
-# This file contains the utility functions used in PyckTool.
+# This file contains the function for the hash_man daemon.
 #
 # Author: Christian Belk
 
 import datetime
-import os
+import qutility
+import time
+import utility
 
-# crackedWriter takes the path to the file where the successfuly cracked passwords (or lack thereof in
-# the worse case) are stored, and writes the contents of cracked there if cracked is not empty, else
-# it prints the failure message.
-def crackedWriter (crackedfile, cracked):
+# manage is run in the hash_man daemon to manage the hashlist and the writing to the cracked
+# file. It terminates by either all of the hashes getting cracked in which case it poisons
+# the poison_queue or by receiving a poison pill in the poison_queue (meaning all of the
+# password guesses have been generated) in which case it checks the suc_queue one last time
+# and writes any successes.
+def manage(crackedfile, hashlist, suc_queue, poison_queue, poison_pill, pill_count):
+    poisoned = False
     with open(crackedfile, 'a+') as crackedout:
         crackedout.write('LockPyck run on %s\n' % datetime.datetime.now())
-        if cracked:
-            for hashd, crack in cracked.iteritems():
-                for cc in crack:
-                    crackedout.write('[+] Hashed: %s  ||  Password: %s\n' % (hashd, cc))
-        else:
-            crackedout.write('[-] No hashes were cracked on this run.\n')
-        crackedout.write('\n')
+        while hashlist:
+            success = qutility.dumpQueue(suc_queue)
+            for succ in success:
+                print '\n[+] Hash: %s  ||  Password: %s\n' % (succ[0], succ[1])
+                crackedout.write('[+] Hash: %s  ||  Password: %s\n' % (succ[0], succ[1]))
+                c = hashlist.count(succ[0])
+                while c > 0:
+                    hashlist.remove(succ[0])
+                    c -= 1
+            if poisoned:
+                crackedout.close()
+                print '[+] Hash_Man: Terminating ...'
+                return
+            if qutility.poisoned(poison_queue):
+                print '[+] Hash_Man: Recieved poison pill!'
+                print '[+] Hash_Man: Checking for successes one last time ...'
+                poisoned = True
+            else:
+                time.sleep(10)
+    crackedout.close()
+    print '[+] Cracked all hashes !!!'
+    print '[+] Hash_Man: Poisoning other LockPyck processes ...'
+    qutility.poison(poison_queue, poison_pill, pill_count)
+    print '[+] Hash_Man: Terminating ...'
     return
-
-# getThoseHashes takes the path to the file containing the hashlist, reads the contents into
-# the hashlist, and returns it.
-def getThoseHashes (hashfile):
-    hashlist = []
-    if os.path.isfile(hashfile):
-        with open(hashfile, 'r') as hashin:
-            for hsh in hashin:
-                hashlist.append(hsh.strip('\n'))
-        hashin.close()
-    else:
-        print '[-] Super_pyck: %s doesn\'t exist.' % hashfile
-    return hashlist

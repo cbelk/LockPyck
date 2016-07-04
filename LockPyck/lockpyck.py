@@ -29,16 +29,16 @@ import argparse
 import multiprocessing
 import os
 import sys
-import utility as util
+import utility
 from FreakMaster import super_freak
-from FreakMaster import utility as futil
+from FreakMaster import futility
 from NDBD import notdbd
+from PyckTool import hash_man
 from PyckTool import super_pyck
-from PyckTool import daemon_writer
 
 # This is the main driver for LockPyck. It simply takes the command line arguments and calls
 # the appropriate method(s) and/or sub-driver(s).
-def main ():
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--psswdHash', help='specify the absolute path to the file containing the hash(es) to be cracked (one hash per line)')
     parser.add_argument('-l', '--learn', help='specify the absolute path to a file containing plain text passwords to learn from (one password per line)')
@@ -61,39 +61,40 @@ def main ():
         queue = multiprocessing.Queue()
         poison_queue = multiprocessing.Queue()
         suc_queue = multiprocessing.Queue()
+        hashlist = utility.getThoseHashes(str(args.psswdHash))
         demon = multiprocessing.Process(name='NBDBdaemon', target=notdbd.notdbd, args=(FREAKBASE, queue, poison_queue, POISON_PILL, PILL_COUNT))
         demon.daemon = True
         print '[+] Starting the NotDBD daemon now ...'
         demon.start()
-        demon_writer = multiprocessing.Process(name='daemonWriter', target=daemon_writer.writer, args=(CRACKEDLIST, util.getThoseHashes(str(args.psswdHash)), suc_queue, poison_queue, POISON_PILL, PILL_COUNT))
-        demon_writer.daemon = True
-        print '[+] Starting the writer daemon now ...'
-        demon_writer.start()
+        demon_hash = multiprocessing.Process(name='hashman', target=hash_man.manage, args=(CRACKEDLIST, hashlist, suc_queue, poison_queue, POISON_PILL, PILL_COUNT))
+        demon_hash.daemon = True
+        print '[+] Starting the hash_man daemon now ...'
+        demon_hash.start()
         print '[+] Starting up super_pyck ...'
-        super_pyck.drive(str(args.psswdHash), CRACKEDLIST, FREAKBASE, queue, suc_queue, poison_queue, POISON_PILL, PILL_COUNT, args.verbose)
+        super_pyck.drive(hashlist, CRACKEDLIST, FREAKBASE, queue, suc_queue, poison_queue, POISON_PILL, PILL_COUNT, args.verbose)
     elif args.learn:
-        if futil.corrupt(args.learn, LEARNED):
+        if utility.corrupt(args.learn, LEARNED):
             print '[!] The provided password list has been analyzed before.'
             print '[!] Running it again can cause skewed data.'
             decision = raw_input('[!] Would you like to run it anyway? (y/n) ')
             if decision.lower() == 'y':
                 super_freak.drive(args.learn, LPYCKBASE, args.verbose)
-                futil.log(LEARNED, '%s\n' % args.learn)
+                utility.log(LEARNED, '%s\n' % args.learn)
         else:
             super_freak.drive(args.learn, LPYCKBASE, args.verbose)
-            futil.log(LEARNED, '%s\n' % args.learn)
+            utility.log(LEARNED, '%s\n' % args.learn)
     elif args.display:
         if args.display == 'Seq':
-            futil.showTheFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
+            futility.showTheFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
         elif args.display == 'NDBD':
-            futil.showTheSpecialFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
+            futility.showTheSpecialFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
         elif args.display == 'cracked':
-            futil.showTheCrack(os.path.join(LPYCKBASE, '%s.freak' % args.display))
+            futility.showTheCrack(os.path.join(LPYCKBASE, '%s.freak' % args.display))
         else:
             termDirect = args.display[0]
-            futil.showTheFreak(os.path.join(FREAKBASE, termDirect, '%s.freak' % args.display))
+            futility.showTheFreak(os.path.join(FREAKBASE, termDirect, '%s.freak' % args.display))
     elif args.remove:
-        futil.freakyReset(FREAKBASE, LOGBASE)
+        utility.freakyReset(FREAKBASE, LOGBASE)
     else:
         parser.print_help()
     print '[+] LockPyck terminated.'

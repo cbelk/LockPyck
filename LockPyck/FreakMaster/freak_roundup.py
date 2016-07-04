@@ -42,7 +42,7 @@ except:
 # freakyCreator is used to create the freaky_dict from the given list of terminals
 # that belong to the given non-terminal. This is then passed to freakyUpdate to be
 # merged and pickled.
-def freakyCreator (freaky_tuple):
+def freakyCreator(freaky_tuple):
     freakfile = freaky_tuple[0]
     terminalSeq = freaky_tuple[1]
     directFreak = freaky_tuple[2]
@@ -64,7 +64,7 @@ def freakyCreator (freaky_tuple):
 # it exists but is not the NDBD.freak, then the contents are merged (summing the 
 # frequencies of duplicates), and pickled to the freaksheet. Else if no freaksheet
 # exists, freaky_dict is just pickled out to file.
-def freakyUpdate (freaksheet, freaky_dict, verbose):
+def freakyUpdate(freaksheet, freaky_dict, verbose):
     if verbose:
         print '[+] FreakyUpdate: Updating %s' % freaksheet
     if os.path.isfile(freaksheet) and os.stat(freaksheet).st_size > 0:
@@ -81,7 +81,7 @@ def freakyUpdate (freaksheet, freaky_dict, verbose):
     return
 
 # getMeThatFreak takes the path to a freaksheet. It un-pickles it and returns it if it exist.
-def getMeThatFreak (freaksheet):
+def getMeThatFreak(freaksheet):
     if os.path.isfile(freaksheet):
         with open(freaksheet, 'rb') as freakin:
             stale_pickle = pickle.load(freakin)
@@ -90,7 +90,7 @@ def getMeThatFreak (freaksheet):
     return
 
 # sortaFreaky is used to return the sorted contents of the given freaksheet.
-def sortaFreaky (freaksheet):
+def sortaFreaky(freaksheet):
     if os.path.isfile(freaksheet):
         sort = sorted(getMeThatFreak(freaksheet).items(), key=operator.itemgetter(1), reverse=True)
         return sort
@@ -98,7 +98,7 @@ def sortaFreaky (freaksheet):
 
 # updateTerminalFreaks creates a list of jobs (tuples) which it passes to a pool 
 # of workers running the freakyCreator function.
-def updateTerminalFreaks (directFreak, terminal_dict, verbose):
+def updateTerminalFreaks(directFreak, terminal_dict, verbose):
     freaky_jobs = []
     pool_size = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=3,)
@@ -113,7 +113,7 @@ def updateTerminalFreaks (directFreak, terminal_dict, verbose):
 # Then for each single non-terminal in the sequence, it isolates it's corresponding part
 # from the password, and checks to see if that non-terminal exist in the dict, appending
 # the sequence if it does, else adding it with a list (value) containing the sequence.
-def updateTerminals (sequ, pswd, terminal_dict):
+def updateTerminals(sequ, pswd, terminal_dict):
     if len(sequ) > 0:
         i = 0
         j = 0

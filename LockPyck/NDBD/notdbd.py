@@ -37,7 +37,7 @@ from FreakMaster import freak_roundup
 # and is chopped off (to be added back to the final pre-term). Every other non-terminal in the sequence
 # is reduced to a list containing all its terminals. These list are passed to the cartesianPreterms 
 # method to have the pre-terms generated and added to the queue.
-def notdbd (FREAKBASE, queue, poison_queue, poison_pill, pill_count):
+def notdbd(FREAKBASE, queue, poison_queue, poison_pill, pill_count):
     seqs = freak_roundup.sortaFreaky(os.path.join(FREAKBASE, 'Seq.freak'))
     ndbd_dict = freak_roundup.getMeThatFreak(os.path.join(FREAKBASE, 'NDBD.freak'))
     THRESHOLD = 80
