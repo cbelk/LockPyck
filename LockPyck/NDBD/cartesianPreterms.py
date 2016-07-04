@@ -26,6 +26,7 @@
 #
 # Author: Christian Belk
 
+import qutility
 import utility
 
 # cartesianPreterms takes a list of lists (the sets), the queue, and the non-term. It then generates the cartesian
@@ -36,7 +37,7 @@ import utility
 # is set to the index of the next set down in the list, that set's index is incremented and the indexes of all 
 # sets higher in the list than the current one are reset to 0 (whch is the next element in the product). The 
 # process is then repeated starting with incrementing the last set.
-def cartesianPreterms (sets, queue, nonterm):
+def cartesianPreterms (sets, queue, poison_queue, nonterm):
     lengths = []
     indexes = []
     THRESHOLD = 80
@@ -45,6 +46,9 @@ def cartesianPreterms (sets, queue, nonterm):
         indexes.append(0)
     curr_ind = len(indexes) - 1
     while True:
+        if qutility.poisoned(poison_queue):
+            print '[+] CartersianPreterm: Recieved poison pill! Terminating ...'
+            return
         utility.courtesyCheck(THRESHOLD)
         partTerm = getPartialTerminal(sets, indexes)
         queue.put([partTerm, nonterm])

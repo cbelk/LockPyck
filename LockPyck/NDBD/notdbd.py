@@ -26,6 +26,7 @@
 # Author: Christian Belk
 
 import os
+import qutility
 import utility
 from cartesianPreterms import cartesianPreterms
 from FreakMaster import freak_roundup
@@ -36,13 +37,16 @@ from FreakMaster import freak_roundup
 # and is chopped off (to be added back to the final pre-term). Every other non-terminal in the sequence
 # is reduced to a list containing all its terminals. These list are passed to the cartesianPreterms 
 # method to have the pre-terms generated and added to the queue.
-def notdbd (FREAKBASE, queue):
+def notdbd (FREAKBASE, queue, poison_queue, poison_pill, pill_count):
     seqs = freak_roundup.sortaFreaky(os.path.join(FREAKBASE, 'Seq.freak'))
     ndbd_dict = freak_roundup.getMeThatFreak(os.path.join(FREAKBASE, 'NDBD.freak'))
     THRESHOLD = 80
     if seqs and ndbd_dict:
         print '[+] Notdbd: Generating preterms now ...'
         for seq, freak in seqs:
+            if qutility.poisoned(poison_queue):
+                print '[+] Notdbd: Recieved poison pill! Terminating ...'
+                return
             utility.courtesyCheck(THRESHOLD)
             if seq != 'freakyc0unt':
                 nontermlist = ndbd_dict[seq]
@@ -61,11 +65,13 @@ def notdbd (FREAKBASE, queue):
                     del nt
                     i += 2
                 if reslist:
-                    cartesianPreterms(reslist, queue, nonterm)
+                    cartesianPreterms(reslist, queue, poison_queue, nonterm)
                 else:
                     queue.put([nonterm])
                 del reslist
                 del nonterm
-    print '[+] Notdbd: Generated all preterms'
-    queue.put('kcyPkcoL')
+    print '[+] Notdbd: Generated all preterms ...'
+    print '[+] Notdbd: Poisoning other LockPyck processes ...'
+    qutility.poison(queue, poison_pill, pill_count)
+    print '[+] Notdbd: Terminating ...'
     return

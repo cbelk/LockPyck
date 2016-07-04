@@ -52,5 +52,5 @@ def getThoseHashes (hashfile):
                 hashlist.append(hsh.strip('\n'))
         hashin.close()
     else:
-        print '[-] Super_pyck: %s doesn\'t exist.'
+        print '[-] Super_pyck: %s doesn\'t exist.' % hashfile
     return hashlist

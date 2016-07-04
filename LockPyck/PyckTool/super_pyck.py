@@ -29,27 +29,31 @@
 import multiprocessing
 import pyck
 import time
+import qutility
 import utility as util
 from NDBD import utility as nutil
 
 # This is the sub-driver for the pycking process. It keeps looping as long as there are hashes to be
 # cracked, getting the preterms from the global list and starting a pool of pyck workers to do some cracking.
-def drive (hashfile, crackedfile, queue, FREAKBASE, verbose):
+def drive (hashfile, crackedfile, FREAKBASE, queue, suc_queue, poison_queue, poison_pill, pill_count, verbose):
     print '[+] Super_pick: Reading hashes from %s ...' % hashfile
     hashlist = util.getThoseHashes(hashfile)
     cracked = {}
     THRESHOLD = 80
     crackedTemp = '%s~' % crackedfile
     poisoned = False
-    print '[+] Super_pyck: Starting the pycking process ...'
-    while hashlist:
+    print '[+] Super_Pyck: Starting the pycking process ...'
+    while not qutility.poisoned(poison_queue):
         preterms = nutil.dumpQueue(queue)
-        if 'kcyPkcoL' in preterms:
+        if poison_pill in preterms:
+            print '[+] Super_Pyck: Recieved poison pill from NotDBD!'
+            print '[+] Super_Pyck: Processing any remaining preterms ...'
             poisoned = True
-            preterms.remove('kcyPkcoL')
+            preterms.remove(poison_pill)
         if preterms:
-            print '[+] Super_pyck: Got some preterms and starting some pycks ...'
-            pool_size = multiprocessing.cpu_count()
+            if verbose:
+                print '[+] Super_Pyck: Got some preterms and starting some pycks ...'
+            pool_size = multiprocessing.cpu_count() - 1
             pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=2,)
             tupls = []
             for preterm in preterms:
@@ -60,22 +64,23 @@ def drive (hashfile, crackedfile, queue, FREAKBASE, verbose):
                 pool.join()
                 del tupls
                 for success in pool_outputs:
-                    if success:
-                        hashlist = updateCrackedPasses(success, hashlist, cracked, crackedTemp)
+                    for succ in success:
+                        suc_queue.put(succ)
                 del pool_outputs
-                if poisoned:
-                    break
             else:
-                print '[-] Super_pyck: Error creating tuples'
-                print '[-] Super_pyck: preterm = %s  ||  hashlist = %s' % (str(preterm), str(hashlist))
+                print '[-] Super_Pyck: Error creating tuples'
+                print '[-] Super_Pyck: preterm = %s  ||  hashlist = %s' % (str(preterm), str(hashlist))
                 pool.close()
                 pool.join()
         else:
-            if poisoned:
-                break
-            print '[!] Super_pyck: Taking a break since no preterms are available right now ...'
-            time.sleep(5)
-    util.crackedWriter(crackedfile, cracked)
+            print '[!] Super_Pyck: Taking a break since no preterms are available right now ...'
+            if not poisoned:
+                time.sleep(5)
+        if poisoned:
+            print '[+] Super_Pyck: Poisoning other LockPyck processes ...'
+            qutility.poison(poison_queue, poison_pill, pill_count)
+            break
+    print '[+] Super_Pyck: Terminating ...'
     return
 
 # updateCrackedPasses takes a list of successful cracks (plaintext) and the hashlist. It then adds the hashed

@@ -29,10 +29,12 @@ import argparse
 import multiprocessing
 import os
 import sys
+import utility as util
 from FreakMaster import super_freak
-from FreakMaster import utility
+from FreakMaster import utility as futil
 from NDBD import notdbd
 from PyckTool import super_pyck
+from PyckTool import daemon_writer
 
 # This is the main driver for LockPyck. It simply takes the command line arguments and calls
 # the appropriate method(s) and/or sub-driver(s).
@@ -51,41 +53,51 @@ def main ():
     LOGBASE = os.path.join(LPYCKBASE, 'log')
     LEARNED = os.path.join(LOGBASE, 'learned.log')
     CRACKEDLIST = os.path.join(LPYCKBASE, 'cracked.freak')
+    POISON_PILL = 'kcyPkcoL'
+    PILL_COUNT = multiprocessing.cpu_count() + 2
     sys.path.insert(1, os.path.join(PYCKBASE, 'PyckMaster'))
     sys.path.insert(1, os.path.join(PYCKBASE, 'PyckTool'))
     if args.psswdHash:
         queue = multiprocessing.Queue()
-        demon = multiprocessing.Process(name='NBDBdaemon', target=notdbd.notdbd, args=(FREAKBASE, queue))
+        poison_queue = multiprocessing.Queue()
+        suc_queue = multiprocessing.Queue()
+        demon = multiprocessing.Process(name='NBDBdaemon', target=notdbd.notdbd, args=(FREAKBASE, queue, poison_queue, POISON_PILL, PILL_COUNT))
         demon.daemon = True
         print '[+] Starting the NotDBD daemon now ...'
         demon.start()
+        demon_writer = multiprocessing.Process(name='daemonWriter', target=daemon_writer.writer, args=(CRACKEDLIST, util.getThoseHashes(str(args.psswdHash)), suc_queue, poison_queue, POISON_PILL, PILL_COUNT))
+        demon_writer.daemon = True
+        print '[+] Starting the writer daemon now ...'
+        demon_writer.start()
         print '[+] Starting up super_pyck ...'
-        super_pyck.drive(str(args.psswdHash), CRACKEDLIST, queue, FREAKBASE, args.verbose)
+        super_pyck.drive(str(args.psswdHash), CRACKEDLIST, FREAKBASE, queue, suc_queue, poison_queue, POISON_PILL, PILL_COUNT, args.verbose)
     elif args.learn:
-        if utility.corrupt(args.learn, LEARNED):
+        if futil.corrupt(args.learn, LEARNED):
             print '[!] The provided password list has been analyzed before.'
             print '[!] Running it again can cause skewed data.'
             decision = raw_input('[!] Would you like to run it anyway? (y/n) ')
             if decision.lower() == 'y':
                 super_freak.drive(args.learn, LPYCKBASE, args.verbose)
-                utility.log(LEARNED, '%s\n' % args.learn)
+                futil.log(LEARNED, '%s\n' % args.learn)
         else:
             super_freak.drive(args.learn, LPYCKBASE, args.verbose)
-            utility.log(LEARNED, '%s\n' % args.learn)
+            futil.log(LEARNED, '%s\n' % args.learn)
     elif args.display:
         if args.display == 'Seq':
-            utility.showTheFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
+            futil.showTheFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
         elif args.display == 'NDBD':
-            utility.showTheSpecialFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
+            futil.showTheSpecialFreak(os.path.join(FREAKBASE, '%s.freak' % args.display))
         elif args.display == 'cracked':
-            utility.showTheCrack(os.path.join(LPYCKBASE, '%s.freak' % args.display))
+            futil.showTheCrack(os.path.join(LPYCKBASE, '%s.freak' % args.display))
         else:
             termDirect = args.display[0]
-            utility.showTheFreak(os.path.join(FREAKBASE, termDirect, '%s.freak' % args.display))
+            futil.showTheFreak(os.path.join(FREAKBASE, termDirect, '%s.freak' % args.display))
     elif args.remove:
-        utility.freakyReset(FREAKBASE, LOGBASE)
+        futil.freakyReset(FREAKBASE, LOGBASE)
     else:
         parser.print_help()
+    print '[+] LockPyck terminated.'
+    return
 
 if __name__ == '__main__':
     main()
