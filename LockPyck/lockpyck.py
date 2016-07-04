@@ -66,7 +66,7 @@ def main():
         demon.daemon = True
         print '[+] Starting the NotDBD daemon now ...'
         demon.start()
-        demon_hash = multiprocessing.Process(name='hashman', target=hash_man.manage, args=(CRACKEDLIST, hashlist, suc_queue, poison_queue, POISON_PILL, PILL_COUNT))
+        demon_hash = multiprocessing.Process(name='hashman', target=hash_man.manage, args=(CRACKEDLIST, hashlist, suc_queue, poison_queue, POISON_PILL, PILL_COUNT, FREAKBASE, args.verbose))
         demon_hash.daemon = True
         print '[+] Starting the hash_man daemon now ...'
         demon_hash.start()
@@ -97,7 +97,8 @@ def main():
         utility.freakyReset(FREAKBASE, LOGBASE)
     else:
         parser.print_help()
-    print '[+] LockPyck terminated.'
+    if not args.display:
+        print '[+] LockPyck terminated.'
     return
 
 if __name__ == '__main__':

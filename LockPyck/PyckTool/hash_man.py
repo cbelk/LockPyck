@@ -25,28 +25,35 @@
 # Author: Christian Belk
 
 import datetime
+import os
 import qutility
 import time
 import utility
+from FreakMaster import freak_roundup
+from FreakMaster import seq_help
 
 # manage is run in the hash_man daemon to manage the hashlist and the writing to the cracked
 # file. It terminates by either all of the hashes getting cracked in which case it poisons
 # the poison_queue or by receiving a poison pill in the poison_queue (meaning all of the
 # password guesses have been generated) in which case it checks the suc_queue one last time
 # and writes any successes.
-def manage(crackedfile, hashlist, suc_queue, poison_queue, poison_pill, pill_count):
+def manage(crackedfile, hashlist, suc_queue, poison_queue, poison_pill, pill_count, fsheets, verbose):
     poisoned = False
     with open(crackedfile, 'a+') as crackedout:
         crackedout.write('LockPyck run on %s\n' % datetime.datetime.now())
         while hashlist:
+            tupls = []
             success = qutility.dumpQueue(suc_queue)
             for succ in success:
                 print '\n[+] Hash: %s  ||  Password: %s\n' % (succ[0], succ[1])
                 crackedout.write('[+] Hash: %s  ||  Password: %s\n' % (succ[0], succ[1]))
+                tupls.append(seq_help.seqCreator(succ[1]))
                 c = hashlist.count(succ[0])
                 while c > 0:
                     hashlist.remove(succ[0])
                     c -= 1
+            if tupls:
+                update(tupls, fsheets, verbose)
             if poisoned:
                 crackedout.close()
                 print '[+] Hash_Man: Terminating ...'
@@ -56,10 +63,29 @@ def manage(crackedfile, hashlist, suc_queue, poison_queue, poison_pill, pill_cou
                 print '[+] Hash_Man: Checking for successes one last time ...'
                 poisoned = True
             else:
-                time.sleep(10)
+                time.sleep(5)
     crackedout.close()
     print '[+] Cracked all hashes !!!'
     print '[+] Hash_Man: Poisoning other LockPyck processes ...'
     qutility.poison(poison_queue, poison_pill, pill_count)
     print '[+] Hash_Man: Terminating ...'
+    return
+
+def update(tupls, fsheets, verbose):
+    sqfreak = os.path.join(fsheets, 'Seq.freak')
+    seq_dict = {'freakyc0unt' : 0}
+    terminal_dict = {}
+    for tupl in tupls:
+        seqString = tupl[0]
+        seq = tupl[1]
+        pswd = tupl[2]
+        terminal_dict = freak_roundup.updateTerminals(seq, pswd, terminal_dict)
+        if seqString in seq_dict:
+            seq_dict[seqString] += 1
+        else:
+            seq_dict[seqString] = 1
+        seq_dict['freakyc0unt'] += 1
+    freak_roundup.freakyUpdate(sqfreak, seq_dict, verbose)
+    for freakfile, terminalSeq in terminal_dict.iteritems():
+        freak_roundup.freakyCreator((freakfile, terminalSeq, fsheets, verbose))
     return
