@@ -20,7 +20,7 @@
 #                                                                                       #
 #########################################################################################
 
-# This file contains the function for the hash_man daemon.
+# This file contains the functions for the hash_man daemon.
 #
 # Author: Christian Belk
 
@@ -71,6 +71,9 @@ def manage(crackedfile, hashlist, suc_queue, poison_queue, poison_pill, pill_cou
     print '[+] Hash_Man: Terminating ...'
     return
 
+# update is used by hash_man to feed the successfully cracked passwords through the learning
+# phase and update the freaksheets. The NDBD freaksheet does not get updated since the sequence
+# already exist in there and it doesn't keep an actual frequency count.
 def update(tupls, fsheets, verbose):
     sqfreak = os.path.join(fsheets, 'Seq.freak')
     seq_dict = {'freakyc0unt' : 0}
