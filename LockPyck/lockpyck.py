@@ -40,10 +40,10 @@ from PyckTool import super_pyck
 # the appropriate method(s) and/or sub-driver(s).
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--psswdHash', help='specify the absolute path to the file containing the hash(es) to be cracked (one hash per line)')
-    parser.add_argument('-l', '--learn', help='specify the absolute path to a file containing plain text passwords to learn from (one password per line)')
-    parser.add_argument('-d', '--display', help='specify the freaksheet to display (eg Seq or L6 if avalaible)')
     parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
+    parser.add_argument('-l', '--learn', help='specify the absolute path to a file containing plain text passwords to learn from (one password per line)')
+    parser.add_argument('-c', '--crack', help='specify the absolute path to the file containing the hash(es) to be cracked (one hash per line)')
+    parser.add_argument('-d', '--display', help='specify the freaksheet to display (eg Seq or L6 if avalaible)')
     parser.add_argument('-r', '--remove', action='store_true', help='remove all freaksheets')
     args = parser.parse_args()
     DRIVER = os.path.abspath(__file__)
@@ -57,11 +57,11 @@ def main():
     PILL_COUNT = multiprocessing.cpu_count() + 2
     sys.path.insert(1, os.path.join(PYCKBASE, 'PyckMaster'))
     sys.path.insert(1, os.path.join(PYCKBASE, 'PyckTool'))
-    if args.psswdHash:
+    if args.crack:
         queue = multiprocessing.Queue()
         poison_queue = multiprocessing.Queue()
         suc_queue = multiprocessing.Queue()
-        hashlist = utility.getThoseHashes(str(args.psswdHash))
+        hashlist = utility.getThoseHashes(str(args.crack))
         demon = multiprocessing.Process(name='NBDBdaemon', target=notdbd.notdbd, args=(FREAKBASE, queue, poison_queue, POISON_PILL, PILL_COUNT))
         demon.daemon = True
         print '[+] Starting the NotDBD daemon now ...'
