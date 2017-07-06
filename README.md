@@ -1,6 +1,6 @@
 ![lockpyck_logo_new](https://cloud.githubusercontent.com/assets/14338983/14766519/b20ca312-09db-11e6-8557-aed94e0eb972.jpeg)
 
-#LockPyck is a pure python password cracker powered by probabilistic context free grammars.
+# LockPyck is a pure python password cracker powered by probabilistic context free grammars.
 
 LockPyck uses probabilistic context free grammars to try to better model how users create their passwords. It's inspired by
 the awesome techniques described in Matthew Weir's Doctoral Dissertation. This project started as a fun way to get better
@@ -13,9 +13,9 @@ is required for the courtesyCheck function which is used to throttle the program
 can be retrieved through a package manager like pip and installed in a virtualenv. All developement and testing on my part 
 has only been done on linux boxes.
 
-##LockPyck has two main phases:
+## LockPyck has two main phases:
 
-###Learning phase
+### Learning phase
 
 In the learning phase, plaintext passwords are analyzed to create sequences, terminals, and associated frequencies. The
 passwords are obtained from the file passed in through the command line flag (file should have one password per line). 
@@ -46,7 +46,7 @@ worker processes is used at this step to generate the frequency dicitonaries and
 The idea behind using freaksheets was to keep from having to analyze the same list before each run, since some lists
 can be very long. Pickling was used for faster access to the already processed data.
 
-###Cracking phase
+### Cracking phase
 
 The cracking phase is where, as the name suggest, the actual cracking takes place. The freaksheets created during
 the learning phase will now be used to generate password guesses in a probabilistic order. The hashes to be cracked
@@ -54,7 +54,7 @@ should be stored in a file (one hash per line), and the absolute path to the fil
 
 When the cracking phase starts, the following two daemons are fired up:
 
-####notdbd
+#### notdbd
 The notdbd daemon is responsible for generating the pre-terminals and adding them to the queue to be consumed by
 the pycks. Pre-terminals are basically non-terminal strings that have only one non-terminal. Continuing with our
 example, 123passwordD3 would be a non-terminal that would produce our password (assuming '321' has been learned
@@ -75,14 +75,14 @@ function generates all elements before returning them as a list of tuples. Given
 having the entire cartesian product generated before they could be turned into pre-terminals and consumed resulted
 in the RAM being flooded and many forced reboots.
 
-####hash_man
+#### hash_man
 The hash_man daemon is responsible for managing the list of hashes to be cracked and successful cracks. Successful
 cracks are added to a queue to be consumed by hash_man. When it gets successes, it first prints them to screen and 
 writes them to the cracked file. The cracked passwords are then feed through the learning process and the appropriate
 freaksheets are updated. When all of the hashes have been cracked, hash_man informs the other processes so they can
 begin terminating.
 
-####super_pyck
+#### super_pyck
 The super_pyck sub-driver is used to drive the pycking process. It retrieves the pre-terminals from the queue and
 prepares the work that it will pass to a pool of workers running the pyck's cutTheKey function. Each worker
 retrieves a list containing the elements from the freaksheet associated with the non-terminal in the pre-terminal
@@ -92,7 +92,7 @@ super_pyck which adds them to the queue for hash_man to consume.
 
 *Throttling is used in the notdbd and super_pyck functions to prevent memory flooding.*
 
-####Poisoning
+#### Poisoning
 A poison pill approach is used for communication between the processes. Both queue (the pre-terminal queue) and 
 poison_queue are used for poisoning. The poisoning rules are:
 
